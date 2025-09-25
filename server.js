@@ -20,15 +20,25 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-// Serve robots.txt and sitemap.xml
+// Serve SEO files with proper content types
 app.get("/robots.txt", (req, res) => {
 	res.type("text/plain");
-	res.sendFile(path.join(__dirname, "public", "robots.txt"));
+	const robotsPath = path.join(__dirname, "public", "robots.txt");
+	if (fs.existsSync(robotsPath)) {
+		res.sendFile(robotsPath);
+	} else {
+		res.status(404).send("robots.txt not found");
+	}
 });
 
 app.get("/sitemap.xml", (req, res) => {
 	res.type("application/xml");
-	res.sendFile(path.join(__dirname, "public", "sitemap.xml"));
+	const sitemapPath = path.join(__dirname, "public", "sitemap.xml");
+	if (fs.existsSync(sitemapPath)) {
+		res.sendFile(sitemapPath);
+	} else {
+		res.status(404).send("sitemap.xml not found");
+	}
 });
 
 const ensureDirectoryExists = (dirPath) => {
@@ -375,6 +385,9 @@ app.use((req, res) => {
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
 	console.log(`Frontend will be served from: http://localhost:${PORT}`);
+	console.log(`SEO files available at:`);
+	console.log(`  - http://localhost:${PORT}/robots.txt`);
+	console.log(`  - http://localhost:${PORT}/sitemap.xml`);
 
 	const requiredDirs = [
 		"public/assets/main/images",
@@ -388,4 +401,20 @@ app.listen(PORT, () => {
 	});
 
 	console.log("Required directories verified");
+
+	// Verify SEO files exist
+	const robotsPath = path.join(__dirname, "public", "robots.txt");
+	const sitemapPath = path.join(__dirname, "public", "sitemap.xml");
+
+	if (fs.existsSync(robotsPath)) {
+		console.log("✓ robots.txt found");
+	} else {
+		console.log("✗ robots.txt missing");
+	}
+
+	if (fs.existsSync(sitemapPath)) {
+		console.log("✓ sitemap.xml found");
+	} else {
+		console.log("✗ sitemap.xml missing");
+	}
 });
