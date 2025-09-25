@@ -20,7 +20,6 @@ export const useScrollAnimations = (config: AnimationConfig = {}) => {
 		// Get GSAP reference
 		gsapRef.current = (window as any).gsap;
 
-		// Check if elements are already visible on page load/refresh
 		const checkInitialVisibility = () => {
 			const elementsToCheck = document.querySelectorAll(`
         .welcome-header,
@@ -42,9 +41,7 @@ export const useScrollAnimations = (config: AnimationConfig = {}) => {
 			});
 		};
 
-		// Counter animation function
 		const animateCounter = (element: HTMLElement) => {
-			// Prevent multiple counter animations
 			if (element.dataset.counterAnimated === "true") return;
 			element.dataset.counterAnimated = "true";
 
@@ -65,7 +62,7 @@ export const useScrollAnimations = (config: AnimationConfig = {}) => {
 			if (num > 0) {
 				let current = 0;
 				const increment = num / 60; // 60 frames for smooth animation
-				const duration = 2000; // 2 seconds
+				const duration = 2000;
 				const frameTime = duration / 60;
 
 				const timer = setInterval(() => {
@@ -80,7 +77,6 @@ export const useScrollAnimations = (config: AnimationConfig = {}) => {
 			}
 		};
 
-		// Simple fade-in animation for headings
 		const animateHeading = (element: Element) => {
 			if (animatedElements.current.has(element)) return;
 			animatedElements.current.add(element);
@@ -88,7 +84,6 @@ export const useScrollAnimations = (config: AnimationConfig = {}) => {
 			const h3 = element as HTMLElement;
 
 			if (gsapRef.current) {
-				// GSAP animation
 				gsapRef.current.to(h3, {
 					opacity: 1,
 					y: 0,
@@ -99,19 +94,16 @@ export const useScrollAnimations = (config: AnimationConfig = {}) => {
 					},
 				});
 			} else {
-				// CSS fallback animation
 				h3.classList.add("animated");
 			}
 		};
 
-		// Animation functions
 		const animateElement = (element: Element) => {
 			if (animatedElements.current.has(element)) return;
 
 			const classList = element.classList;
 			const tagName = element.tagName.toLowerCase();
 
-			// Handle h3 headings with text reveal
 			if (tagName === "h3") {
 				animateHeading(element);
 				return;
@@ -119,7 +111,6 @@ export const useScrollAnimations = (config: AnimationConfig = {}) => {
 
 			animatedElements.current.add(element);
 
-			// Welcome section animation
 			if (classList.contains("welcome-header")) {
 				const h2 = element.querySelector("h2") as HTMLElement;
 				const p = element.querySelector("p") as HTMLElement;
@@ -141,7 +132,6 @@ export const useScrollAnimations = (config: AnimationConfig = {}) => {
 				}
 			}
 
-			// Offer cards animation
 			if (classList.contains("offer-card")) {
 				if ((element as HTMLElement).style.opacity === "1") return;
 				(element as HTMLElement).style.opacity = "1";
@@ -151,7 +141,6 @@ export const useScrollAnimations = (config: AnimationConfig = {}) => {
 					"all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
 			}
 
-			// Stats section animation
 			if (classList.contains("stat-card")) {
 				if ((element as HTMLElement).style.opacity === "1") return;
 				(element as HTMLElement).style.opacity = "1";
@@ -160,7 +149,6 @@ export const useScrollAnimations = (config: AnimationConfig = {}) => {
 				(element as HTMLElement).style.transition =
 					"all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
 
-				// Animate counter
 				const counterElement = element.querySelector(
 					".stat-number"
 				) as HTMLElement;
@@ -172,7 +160,6 @@ export const useScrollAnimations = (config: AnimationConfig = {}) => {
 				}
 			}
 
-			// Gallery images animation
 			if (classList.contains("image-slide")) {
 				if ((element as HTMLElement).style.opacity === "1") return;
 				(element as HTMLElement).style.opacity = "1";
@@ -181,7 +168,6 @@ export const useScrollAnimations = (config: AnimationConfig = {}) => {
 					"all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
 			}
 
-			// Contact items animation
 			if (classList.contains("contact-item")) {
 				if ((element as HTMLElement).style.opacity === "1") return;
 				(element as HTMLElement).style.opacity = "1";
@@ -191,14 +177,12 @@ export const useScrollAnimations = (config: AnimationConfig = {}) => {
 			}
 		};
 
-		// Debounced scroll handler to prevent excessive calls
 		let scrollTimeout: NodeJS.Timeout;
 		const debouncedScroll = () => {
 			clearTimeout(scrollTimeout);
 			scrollTimeout = setTimeout(checkInitialVisibility, 100);
 		};
 
-		// Create intersection observer
 		observerRef.current = new IntersectionObserver(
 			(entries) => {
 				entries.forEach((entry) => {
@@ -213,7 +197,6 @@ export const useScrollAnimations = (config: AnimationConfig = {}) => {
 			}
 		);
 
-		// Observe elements
 		const elementsToObserve = document.querySelectorAll(`
       .welcome-header,
       .offer-card,
@@ -227,10 +210,8 @@ export const useScrollAnimations = (config: AnimationConfig = {}) => {
 			observerRef.current?.observe(element);
 		});
 
-		// Add scroll listener for immediate visibility check
 		window.addEventListener("scroll", debouncedScroll, { passive: true });
 
-		// Check initial visibility after a short delay to ensure DOM is ready
 		const initialCheckTimer = setTimeout(checkInitialVisibility, 300);
 
 		return () => {

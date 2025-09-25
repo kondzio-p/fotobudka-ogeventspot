@@ -7,7 +7,6 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import dotenv from "dotenv";
 
-// ES modules equivalent of __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -21,21 +20,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-// Ensure directories exist
 const ensureDirectoryExists = (dirPath) => {
 	if (!fs.existsSync(dirPath)) {
 		fs.mkdirSync(dirPath, { recursive: true });
 	}
 };
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		// Default values in case req.body is not yet parsed
-		const mediaType = req.body?.mediaType || 'main';
-		const category = req.body?.category || 'images';
+		const mediaType = req.body?.mediaType || "main";
+		const category = req.body?.category || "images";
 
-		// Determine the upload path
 		let uploadPath;
 		if (mediaType === "main") {
 			uploadPath = path.join(
@@ -55,18 +50,15 @@ const storage = multer.diskStorage({
 			);
 		}
 
-		// Ensure directory exists
 		ensureDirectoryExists(uploadPath);
 
 		cb(null, uploadPath);
 	},
 	filename: (req, file, cb) => {
-		// Keep original filename
 		cb(null, file.originalname);
 	},
 });
 
-// File filter - only allow .webp and .webm files
 const fileFilter = (req, file, cb) => {
 	const allowedExtensions = [".webp", ".webm"];
 	const fileExtension = path.extname(file.originalname).toLowerCase();
@@ -78,50 +70,57 @@ const fileFilter = (req, file, cb) => {
 	}
 };
 
-// Create multer instance with fields parsing first
 const upload = multer({
 	storage: storage,
 	fileFilter: fileFilter,
 	limits: {
-		fileSize: 50 * 1024 * 1024, // 50MB limit
+		fileSize: 50 * 1024 * 1024,
 	},
 });
 
-// API Routes
-
-// Admin login endpoint
 app.post("/api/admin/login", (req, res) => {
 	try {
 		const { login, password } = req.body;
-		const adminLogin = process.env.ADMIN_LOGIN || 'fotobudka';
-		const adminPassword = process.env.ADMIN_PASSWORD || 'f0t0budk4!';
+		const adminLogin = process.env.ADMIN_LOGIN;
+		const adminPassword = process.env.ADMIN_PASSWORD;
+
+		if (!adminLogin || !adminPassword) {
+			return res.status(500).json({
+				success: false,
+				message: "Server configuration error",
+			});
+		}
 
 		if (login === adminLogin && password === adminPassword) {
-			res.json({ success: true, message: 'Zalogowano pomyślnie' });
+			res.json({ success: true, message: "Login successful" });
 		} else {
-			res.status(401).json({ success: false, message: 'Nieprawidłowy login lub hasło' });
+			res.status(401).json({
+				success: false,
+				message: "Invalid credentials",
+			});
 		}
 	} catch (error) {
 		console.error("Login error:", error);
-		res.status(500).json({ success: false, message: 'Błąd serwera' });
+		res.status(500).json({
+			success: false,
+			message: "Server error",
+		});
 	}
 });
 
-// Upload file endpoint
 app.post("/api/upload-file", (req, res) => {
-	// Use multer with fields parsing
 	const uploadHandler = upload.fields([
-		{ name: 'file', maxCount: 1 },
-		{ name: 'mediaType', maxCount: 1 },
-		{ name: 'category', maxCount: 1 }
+		{ name: "file", maxCount: 1 },
+		{ name: "mediaType", maxCount: 1 },
+		{ name: "category", maxCount: 1 },
 	]);
-	
+
 	uploadHandler(req, res, (err) => {
 		if (err) {
 			console.error("Upload error:", err);
 			return res.status(400).json({ error: err.message });
 		}
-		
+
 		try {
 			if (!req.files || !req.files.file || !req.files.file[0]) {
 				return res.status(400).json({ error: "No file uploaded" });
@@ -130,7 +129,6 @@ app.post("/api/upload-file", (req, res) => {
 			const uploadedFile = req.files.file[0];
 			const { mediaType, category } = req.body;
 
-			// Generate the public path for the uploaded file
 			let publicPath;
 			if (mediaType === "main") {
 				publicPath = `/assets/main/${category}/${uploadedFile.filename}`;
@@ -152,10 +150,18 @@ app.post("/api/upload-file", (req, res) => {
 	});
 });
 
-// Create directory endpoint
 app.post("/api/create-directory", (req, res) => {
 	try {
 		const { path: dirPath } = req.body;
+
+		if (!dirPath || typeof dirPath !== "string") {
+			return res.status(400).json({ error: "Invalid path" });
+		}
+
+		if (dirPath.includes("..") || dirPath.includes("~")) {
+			return res.status(400).json({ error: "Invalid path" });
+		}
+
 		const fullPath = path.join(__dirname, dirPath);
 
 		ensureDirectoryExists(fullPath);
@@ -170,10 +176,16 @@ app.post("/api/create-directory", (req, res) => {
 	}
 });
 
-// List files in directory
 app.get("/api/list-files/:mediaType/:category", (req, res) => {
 	try {
 		const { mediaType, category } = req.params;
+
+		if (
+			!["main", "subpages"].includes(mediaType) ||
+			!["images", "videos"].includes(category)
+		) {
+			return res.status(400).json({ error: "Invalid parameters" });
+		}
 
 		let dirPath;
 		if (mediaType === "main") {
@@ -222,10 +234,18 @@ app.get("/api/list-files/:mediaType/:category", (req, res) => {
 	}
 });
 
-// Delete file endpoint
 app.delete("/api/delete-file", (req, res) => {
 	try {
 		const { filePath } = req.body;
+
+		if (!filePath || typeof filePath !== "string") {
+			return res.status(400).json({ error: "Invalid file path" });
+		}
+
+		if (filePath.includes("..") || filePath.includes("~")) {
+			return res.status(400).json({ error: "Invalid file path" });
+		}
+
 		const fullPath = path.join(__dirname, "public", filePath);
 
 		if (fs.existsSync(fullPath)) {
@@ -240,12 +260,10 @@ app.delete("/api/delete-file", (req, res) => {
 	}
 });
 
-// Health check
 app.get("/api/health", (req, res) => {
 	res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-// Error handling middleware
 app.use((error, req, res, next) => {
 	if (error instanceof multer.MulterError) {
 		if (error.code === "LIMIT_FILE_SIZE") {
@@ -263,26 +281,21 @@ app.use((error, req, res, next) => {
 	res.status(500).json({ error: "Internal server error" });
 });
 
-// Serve React app for all other routes (catch-all route)
-// This must be the LAST route defined
 app.use((req, res) => {
-	// Check if dist directory exists
 	const distPath = path.join(__dirname, "dist", "index.html");
 	if (fs.existsSync(distPath)) {
 		res.sendFile(distPath);
 	} else {
-		res.status(404).json({ 
-			error: "Application not built. Run 'npm run build' first." 
+		res.status(404).json({
+			error: "Application not built. Run 'npm run build' first.",
 		});
 	}
 });
 
-// Start server
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
 	console.log(`Frontend will be served from: http://localhost:${PORT}`);
 
-	// Ensure required directories exist
 	const requiredDirs = [
 		"public/assets/main/images",
 		"public/assets/main/videos",
@@ -294,5 +307,5 @@ app.listen(PORT, () => {
 		ensureDirectoryExists(path.join(__dirname, dir));
 	});
 
-	console.log("Required directories created/verified");
+	console.log("Required directories verified");
 });

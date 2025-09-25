@@ -31,7 +31,6 @@ export interface PageData {
 	};
 }
 
-// --- STORAGE helpers ---
 const STORAGE_KEY = "ogevents_pages";
 
 const loadPages = (): PageData[] => {
@@ -48,7 +47,6 @@ const savePages = (pages: PageData[]) => {
 	} catch {}
 };
 
-// --- DEFAULT DATA ---
 const defaultPages = (): PageData[] => [
 	{
 		id: "main",
@@ -177,7 +175,6 @@ export const addNewSubPage = (name: string, slug: string): PageData => {
 	return newPage;
 };
 
-// NOWE: usuwanie podstron
 export const removeSubPage = (id: string) => {
 	const idx = allPages.findIndex((p) => p.id === id && p.slug !== "/");
 	if (idx >= 0) {

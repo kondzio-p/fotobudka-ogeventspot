@@ -1,6 +1,6 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 
-/* ===== PODSTAWOWE STYLE I CZCIONKI ===== */
+/* Base styles and fonts */
 @font-face {
 	font-family: "Poppins";
 	src: url("/assets/main/fonts/poppins/Poppins-Regular.ttf")
@@ -38,7 +38,7 @@ body {
 	position: relative;
 }
 
-/* ===== NAGŁÓWEK (HEADER) ===== */
+/* Header */
 .header {
 	background: #eec9d2;
 	padding: 15px 0;
@@ -70,7 +70,7 @@ body {
 	width: auto;
 }
 
-/* Menu nawigacyjne */
+/* Navigation menu */
 .nav-menu {
 	display: flex;
 	list-style: none;
@@ -128,7 +128,7 @@ body {
 	color: #801039;
 }
 
-/* Ikony społecznościowe */
+/* Social icons */
 .social-icons {
 	display: flex;
 	gap: 15px;
@@ -154,7 +154,7 @@ body {
 	transform: scale(1.1);
 }
 
-/* ===== GŁÓWNA ZAWARTOŚĆ ===== */
+/* Main content */
 .main-content {
 	max-width: 1200px;
 	margin: 0 auto;
@@ -165,7 +165,7 @@ body {
 	justify-content: center;
 }
 
-/* ===== GALERIA ZDJĘĆ ===== */
+/* Photo gallery */
 .photo-gallery {
 	position: relative;
 	width: 100%;
@@ -200,7 +200,7 @@ body {
 	border-radius: 3px;
 }
 
-/* Pozycjonowanie ramek zdjęć */
+/* Photo frame positioning */
 .photo-frame:nth-child(1) {
 	top: 50px;
 	left: 0;
@@ -225,7 +225,7 @@ body {
 	transform: rotate(7deg);
 }
 
-/* ===== SEKCJA POWITALNA / OFERTY ===== */
+/* Welcome/Offers section */
 .welcome-section {
 	margin-top: 0;
 }
@@ -241,7 +241,6 @@ body {
 	border: 2px solid transparent;
 	opacity: 0;
 	transform: perspective(1000px) rotateX(-30deg) translateY(100px);
-	/* Fallback visibility */
 	animation: fadeInFallback 0.1s ease-in-out 2s forwards;
 }
 
@@ -371,7 +370,7 @@ body {
 	font-weight: 400;
 }
 
-/* ===== KARUZELA ZDJĘĆ ===== */
+/* Image carousel */
 .image-carousel-container {
 	position: relative;
 	display: flex;
@@ -474,7 +473,7 @@ body {
 	right: -25px;
 }
 
-/* ===== SEKCJA STATYSTYK ===== */
+/* Stats section */
 .stats-section {
 	background: rgba(255, 255, 255, 0.95);
 	border-bottom-left-radius: 70px;
@@ -482,14 +481,14 @@ body {
 	z-index: 2;
 }
 
-/* Hide h3 elements initially to prevent flash during scroll animations */
+/* Hide h3 elements initially */
 h3 {
 	opacity: 0;
 	transform: translateY(30px);
 	transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Show h3 elements that have been animated */
+/* Show animated h3 elements */
 h3.animated {
 	opacity: 1;
 	transform: translateY(0);
@@ -499,7 +498,6 @@ h3.animated {
 	transition: transform 0.3s ease;
 	opacity: 0;
 	transform: translateY(-30px) scale(0.8);
-	/* Ensure minimum visibility */
 	min-height: 120px;
 }
 
@@ -507,7 +505,7 @@ h3.animated {
 	transform: translateY(-10px) scale(1.05);
 }
 
-/* ===== SEKCJA GALERII ZDJĘĆ ===== */
+/* Image gallery section */
 .image-gallery-section {
 	background: rgba(139, 75, 122, 0.1);
 	position: relative;
@@ -531,7 +529,7 @@ h3.animated {
 	z-index: 2;
 }
 
-/* ===== STOPKA KONTAKTOWA ===== */
+/* Contact footer */
 .contact-footer {
 	position: relative;
 	padding: 30px 0 20px 0 !important;
@@ -565,14 +563,12 @@ h3.animated {
 .welcome-header h2 {
 	opacity: 0;
 	transform: translateY(50px);
-	/* Fallback visibility */
 	animation: fadeInHeaderFallback 0.1s ease-in-out 1.5s forwards;
 }
 
 .welcome-header p {
 	opacity: 0;
 	transform: translateY(30px);
-	/* Fallback visibility */
 	animation: fadeInHeaderFallback 0.1s ease-in-out 1.8s forwards;
 }
 
@@ -583,7 +579,7 @@ h3.animated {
 	}
 }
 
-/* ===== OVERLAY LOCATIONS SECTION ===== */
+/* Locations overlay */
 .locations-overlay {
 	position: fixed;
 	top: 0;
@@ -709,7 +705,7 @@ h3.animated {
 	transform: translateX(5px);
 }
 
-/* ===== OBRAZY TŁA DLA KART OFERT ===== */
+/* Offer card backgrounds */
 .offer-card-360 .card-background {
 	background-image: url("/assets/main/images/360.webp"),
 		url("/assets/main/images/360.png");
@@ -735,11 +731,7 @@ h3.animated {
 		url("/assets/main/images/neons.jpg");
 }
 
-/* ===== LAZY LOADING ===== */
-
-/* ===== MEDIA QUERIES - RESPONSYWNOŚĆ ===== */
-
-/* Tablety i mniejsze ekrany */
+/* Media queries - Tablets and smaller screens */
 @media (max-width: 1024px) {
 	.photo-gallery {
 		height: 500px;
@@ -776,7 +768,7 @@ h3.animated {
 	}
 }
 
-/* Telefony i małe urządzenia */
+/* Mobile and small devices */
 @media (max-width: 768px) {
 	.main-content {
 		padding-top: 110px;
@@ -985,7 +977,7 @@ h3.animated {
 	}
 }
 
-/* Bardzo małe urządzenia */
+/* Very small devices */
 @media (max-width: 480px) {
 	.main-content {
 		padding-top: 105px;

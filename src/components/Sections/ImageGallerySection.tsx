@@ -25,7 +25,6 @@ const ImageGallerySection: React.FC<ImageGalleryProps> = ({ data }) => {
 	const images = data?.images || defaultImages;
 	const totalImages = images.length;
 
-	// Preload images
 	useEffect(() => {
 		let loadedCount = 0;
 		const imagePromises = images.map((img) => {
@@ -35,7 +34,6 @@ const ImageGallerySection: React.FC<ImageGalleryProps> = ({ data }) => {
 					loadedCount++;
 					if (loadedCount === images.length) {
 						setImagesLoaded(true);
-						// Ensure gallery images are visible after loading
 						setTimeout(() => {
 							const imageSlides =
 								document.querySelectorAll(".image-slide");
@@ -59,7 +57,6 @@ const ImageGallerySection: React.FC<ImageGalleryProps> = ({ data }) => {
 					loadedCount++;
 					if (loadedCount === images.length) {
 						setImagesLoaded(true);
-						// Ensure gallery images are visible even if some failed to load
 						setTimeout(() => {
 							const imageSlides =
 								document.querySelectorAll(".image-slide");
@@ -86,6 +83,7 @@ const ImageGallerySection: React.FC<ImageGalleryProps> = ({ data }) => {
 			setImagesLoaded(true);
 		});
 	}, [images]);
+
 	const nextImage = () => {
 		if (isAnimating) return;
 		setIsAnimating(true);
@@ -113,7 +111,6 @@ const ImageGallerySection: React.FC<ImageGalleryProps> = ({ data }) => {
 		}
 	};
 
-	// Auto-play functionality
 	useEffect(() => {
 		if (!imagesLoaded) return;
 
@@ -129,19 +126,16 @@ const ImageGallerySection: React.FC<ImageGalleryProps> = ({ data }) => {
 	const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
 		const target = e.target as HTMLImageElement;
 
-		// Prevent infinite error handling
 		if (target.dataset.errorHandled) return;
 		target.dataset.errorHandled = "true";
 
 		const altText = target.alt || "Gallery image";
 
-		// Create placeholder div
 		const placeholder = document.createElement("div");
 		placeholder.style.cssText =
 			"width: 100%; height: 100%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999; font-size: 14px; border-radius: 15px;";
 		placeholder.textContent = altText;
 
-		// Replace the image with placeholder
 		if (target.parentNode) {
 			target.parentNode.replaceChild(placeholder, target);
 		}

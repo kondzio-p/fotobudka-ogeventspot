@@ -13,7 +13,6 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ data }) => {
 		data?.subtitle ||
 		"Dopełniamy, by na Twoim wydarzeniu nie zabrakło Atrakcji!";
 
-	// Ensure elements are visible on mount (fallback)
 	React.useEffect(() => {
 		const ensureVisibility = () => {
 			const welcomeHeader = document.querySelector(".welcome-header");
@@ -22,7 +21,6 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ data }) => {
 			const h2 = welcomeHeader.querySelector("h2") as HTMLElement;
 			const p = welcomeHeader.querySelector("p") as HTMLElement;
 
-			// Check if elements are in viewport and make them visible
 			const rect = welcomeHeader.getBoundingClientRect();
 			const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
 
@@ -45,7 +43,6 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ data }) => {
 			}
 		};
 
-		// Check immediately and on scroll
 		const timer = setTimeout(ensureVisibility, 100);
 		window.addEventListener("scroll", ensureVisibility, { passive: true });
 

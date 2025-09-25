@@ -18,7 +18,6 @@ import { useGSAP } from "./hooks/useGSAP";
 import { useScrollAnimations } from "./hooks/useScrollAnimations";
 import "./styles/admin.css";
 
-// Background component
 const Background: React.FC = () => (
 	<div
 		id="background-fixed"
@@ -38,107 +37,101 @@ const Background: React.FC = () => (
 	/>
 );
 
-// Page wrapper component that handles GSAP animations
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const location = useLocation();
 	const gsap = useGSAP();
 	const scrollObserver = useScrollAnimations();
 
 	useEffect(() => {
-		// Scroll to top on page refresh/load
 		window.scrollTo(0, 0);
 
-		// Initialize base animations and setup
 		const initializeAnimations = () => {
-			// Set initial states for elements
 			const setInitialStates = () => {
-				// Welcome section
-				document.querySelectorAll('.welcome-header h2').forEach((el) => {
-					(el as HTMLElement).style.opacity = '0';
-					(el as HTMLElement).style.transform = 'translateY(50px)';
+				document
+					.querySelectorAll(".welcome-header h2")
+					.forEach((el) => {
+						(el as HTMLElement).style.opacity = "0";
+						(el as HTMLElement).style.transform =
+							"translateY(50px)";
+					});
+
+				document.querySelectorAll(".welcome-header p").forEach((el) => {
+					(el as HTMLElement).style.opacity = "0";
+					(el as HTMLElement).style.transform = "translateY(30px)";
 				});
 
-				document.querySelectorAll('.welcome-header p').forEach((el) => {
-					(el as HTMLElement).style.opacity = '0';
-					(el as HTMLElement).style.transform = 'translateY(30px)';
+				document.querySelectorAll(".offer-card").forEach((el) => {
+					(el as HTMLElement).style.opacity = "0";
+					(el as HTMLElement).style.transform =
+						"translateY(100px) rotateX(-30deg)";
 				});
 
-				// Offer cards
-				document.querySelectorAll('.offer-card').forEach((el) => {
-					(el as HTMLElement).style.opacity = '0';
-					(el as HTMLElement).style.transform = 'translateY(100px) rotateX(-30deg)';
+				document.querySelectorAll(".stat-card").forEach((el) => {
+					(el as HTMLElement).style.opacity = "0";
+					(el as HTMLElement).style.transform =
+						"translateY(-30px) scale(0.8)";
 				});
 
-				// Stats cards
-				document.querySelectorAll('.stat-card').forEach((el) => {
-					(el as HTMLElement).style.opacity = '0';
-					(el as HTMLElement).style.transform = 'translateY(-30px) scale(0.8)';
+				document.querySelectorAll(".image-slide").forEach((el) => {
+					(el as HTMLElement).style.opacity = "0";
+					(el as HTMLElement).style.transform = "scale(0.8)";
 				});
 
-				// Gallery images
-				document.querySelectorAll('.image-slide').forEach((el) => {
-					(el as HTMLElement).style.opacity = '0';
-					(el as HTMLElement).style.transform = 'scale(0.8)';
+				document.querySelectorAll(".contact-item").forEach((el) => {
+					(el as HTMLElement).style.opacity = "0";
+					(el as HTMLElement).style.transform = "translateX(-50px)";
 				});
 
-				// Contact items
-				document.querySelectorAll('.contact-item').forEach((el) => {
-					(el as HTMLElement).style.opacity = '0';
-					(el as HTMLElement).style.transform = 'translateX(-50px)';
-				});
+				document.querySelectorAll(".stat-number").forEach((el) => {
+					const finalAttr = el.getAttribute("data-final-value");
+					const finalText = finalAttr ?? el.textContent ?? "";
+					el.setAttribute("data-final-value", finalText);
+					el.removeAttribute("data-animated");
 
-				// Reset stat counters
-				document.querySelectorAll('.stat-number').forEach((el) => {
-					const finalAttr = el.getAttribute('data-final-value');
-					const finalText = finalAttr ?? el.textContent ?? '';
-					el.setAttribute('data-final-value', finalText);
-					el.removeAttribute('data-animated');
-
-					if (finalText.trim() === '∞') {
-						el.textContent = '∞';
+					if (finalText.trim() === "∞") {
+						el.textContent = "∞";
 						return;
 					}
 					if (/\+$/.test(finalText)) {
-						el.textContent = '0+';
+						el.textContent = "0+";
 						return;
 					}
 					if (/lat$/.test(finalText)) {
-						el.textContent = '0 lat';
+						el.textContent = "0 lat";
 						return;
 					}
 					if (/\d/.test(finalText)) {
-						el.textContent = '0';
+						el.textContent = "0";
 					}
 				});
 			};
 
 			setInitialStates();
 
-			// Header entrance animation (immediate, not scroll-triggered)
 			if (gsap) {
 				const headerTimeline = gsap.timeline();
 				headerTimeline
-					.to('.nav-menu li', {
+					.to(".nav-menu li", {
 						opacity: 1,
 						y: 0,
 						duration: 0.6,
 						stagger: 0.1,
-						ease: 'back.out(1.7)',
+						ease: "back.out(1.7)",
 					})
 					.to(
-						'.social-icons a',
+						".social-icons a",
 						{
 							opacity: 1,
 							y: 0,
 							rotation: 0,
 							duration: 0.6,
 							stagger: 0.15,
-							ease: 'back.out(1.7)',
+							ease: "back.out(1.7)",
 						},
-						'-=0.4'
+						"-=0.4"
 					)
 					.to(
-						'.photo-frame',
+						".photo-frame",
 						{
 							opacity: 1,
 							scale: 1,
@@ -148,37 +141,50 @@ const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 							},
 							duration: 0.8,
 							stagger: 0.2,
-							ease: 'back.out(1.2)',
+							ease: "back.out(1.2)",
 						},
-						'-=0.2'
+						"-=0.2"
 					);
 			} else {
-				// Fallback without GSAP
-				document.querySelectorAll('.nav-menu li').forEach((el, index) => {
-					setTimeout(() => {
-						(el as HTMLElement).style.opacity = '1';
-						(el as HTMLElement).style.transform = 'translateY(0)';
-						(el as HTMLElement).style.transition = 'all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-					}, index * 100);
-				});
+				document
+					.querySelectorAll(".nav-menu li")
+					.forEach((el, index) => {
+						setTimeout(() => {
+							(el as HTMLElement).style.opacity = "1";
+							(el as HTMLElement).style.transform =
+								"translateY(0)";
+							(el as HTMLElement).style.transition =
+								"all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
+						}, index * 100);
+					});
 
-				document.querySelectorAll('.social-icons a').forEach((el, index) => {
-					setTimeout(() => {
-						(el as HTMLElement).style.opacity = '1';
-						(el as HTMLElement).style.transform = 'translateY(0) rotate(0deg)';
-						(el as HTMLElement).style.transition = 'all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-					}, 400 + index * 150);
-				});
+				document
+					.querySelectorAll(".social-icons a")
+					.forEach((el, index) => {
+						setTimeout(() => {
+							(el as HTMLElement).style.opacity = "1";
+							(el as HTMLElement).style.transform =
+								"translateY(0) rotate(0deg)";
+							(el as HTMLElement).style.transition =
+								"all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
+						}, 400 + index * 150);
+					});
 
-				// Animate photo frames without GSAP
-				document.querySelectorAll('.photo-frame').forEach((el, index) => {
-					const rotations = [-8, 5, -3, 7];
-					setTimeout(() => {
-						(el as HTMLElement).style.opacity = '1';
-						(el as HTMLElement).style.transform = `scale(1) rotate(${rotations[index] || 0}deg)`;
-						(el as HTMLElement).style.transition = 'all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-					}, 600 + index * 200);
-				});
+				document
+					.querySelectorAll(".photo-frame")
+					.forEach((el, index) => {
+						const rotations = [-8, 5, -3, 7];
+						setTimeout(() => {
+							(el as HTMLElement).style.opacity = "1";
+							(
+								el as HTMLElement
+							).style.transform = `scale(1) rotate(${
+								rotations[index] || 0
+							}deg)`;
+							(el as HTMLElement).style.transition =
+								"all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)";
+						}, 600 + index * 200);
+					});
 			}
 		};
 
@@ -189,7 +195,6 @@ const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	return <>{children}</>;
 };
 
-// Wrapper component for subpage layout
 const SubPageLayout: React.FC<{ data: PageData }> = ({ data }) => (
 	<>
 		<Header data={data.navigation} />
@@ -198,7 +203,6 @@ const SubPageLayout: React.FC<{ data: PageData }> = ({ data }) => (
 	</>
 );
 
-// Main App component
 const App: React.FC = () => {
 	const [isAdminAuthenticated, setIsAdminAuthenticated] =
 		React.useState(false);
@@ -220,7 +224,6 @@ const App: React.FC = () => {
 		<Router>
 			<div className="min-h-screen">
 				<Routes>
-					{/* Admin Routes */}
 					<Route
 						path="/admin/login"
 						element={<AdminLogin onLogin={handleAdminLogin} />}
@@ -234,7 +237,6 @@ const App: React.FC = () => {
 						}
 					/>
 
-					{/* Public Routes */}
 					<Route
 						path="/*"
 						element={
@@ -264,7 +266,6 @@ const App: React.FC = () => {
 												</>
 											}
 										/>
-										{/* Dynamic routes for subpages */}
 										{allPages
 											.filter((page) => page.slug !== "/")
 											.map((page) => (

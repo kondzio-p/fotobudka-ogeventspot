@@ -52,37 +52,39 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 		localStorage.setItem("mediaLibrary", JSON.stringify(items));
 	};
 
-	const handleFileUpload = async (file: File, targetPath: string): Promise<string> => {
+	const handleFileUpload = async (
+		file: File,
+		targetPath: string
+	): Promise<string> => {
 		try {
 			// Use FormData for file upload
 			const formData = new FormData();
-			formData.append('file', file);
-			
+			formData.append("file", file);
+
 			// Determine media type and category from targetPath
-			const pathParts = targetPath.split('/').filter(part => part);
-			const mediaType = pathParts.includes('main') ? 'main' : 'subpages';
+			const pathParts = targetPath.split("/").filter((part) => part);
+			const mediaType = pathParts.includes("main") ? "main" : "subpages";
 			const category = pathParts[pathParts.length - 1]; // 'images' or 'videos'
-			
-			formData.append('mediaType', mediaType);
-			formData.append('category', category);
-			
+
+			formData.append("mediaType", mediaType);
+			formData.append("category", category);
+
 			// Upload file to backend
-			const response = await fetch('/api/upload-file', {
-				method: 'POST',
-				body: formData
+			const response = await fetch("/api/upload-file", {
+				method: "POST",
+				body: formData,
 			});
-			
+
 			if (!response.ok) {
 				const errorData = await response.json();
-				throw new Error(errorData.error || 'Failed to upload file');
+				throw new Error(errorData.error || "Failed to upload file");
 			}
-			
+
 			const result = await response.json();
 			return result.path;
-			
 		} catch (error) {
-			console.error('Error uploading file:', error);
-			throw error;
+			console.error("Error uploading file:", error);
+			alert("File upload error: " + (error as Error).message);
 		}
 	};
 
@@ -122,7 +124,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 		setCurrentPageData(updatedData);
 	};
 
-	// ===== Helpers do tablic zagnieżdżonych =====
 	const getByPath = (obj: any, path: string) =>
 		path.split(".").reduce((acc, key) => (acc ? acc[key] : undefined), obj);
 
@@ -133,7 +134,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 		updater(parent[last]);
 	};
 
-	// Top-level array (np. videos)
 	const handleArrayChange = (
 		field: keyof PageData,
 		index: number,
@@ -155,7 +155,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 		}
 	};
 
-	// Nested array path (np. 'gallery.images' albo 'locations.cities')
 	const handleNestedArrayChange = (
 		path: "gallery.images" | "locations.cities",
 		index: number,
@@ -236,6 +235,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 			setTimeout(() => setSaveMessage(""), 3000);
 		} catch {
 			setSaveMessage("Błąd podczas zapisywania zmian.");
+			setSaveMessage("Error saving changes.");
 		} finally {
 			setIsSaving(false);
 		}
@@ -253,7 +253,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 		setShowAddPageModal(false);
 		setCurrentPageId(newPage.id);
 	};
-
 	const generateSlugFromName = (name: string) =>
 		name
 			.normalize("NFD")
@@ -423,7 +422,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 							<div className="admin-section">
 								<h4>Nawigacja</h4>
 								<div className="form-group">
-									<label>Odnośnik Facebook:</label>
+									<label>Facebook URL:</label>
 									<input
 										type="url"
 										className="form-control"
@@ -441,7 +440,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 									/>
 								</div>
 								<div className="form-group">
-									<label>Odnośnik Instagram:</label>
+									<label>Instagram URL:</label>
 									<input
 										type="url"
 										className="form-control"
@@ -460,9 +459,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 								</div>
 							</div>
 
-							{/* Filmy w głównej galerii (ramki) */}
 							<div className="admin-section">
-								<h4>Filmy w galerii</h4>
+								<h4>Gallery Videos</h4>
 								<div className="admin-video-frames">
 									{currentPageData!.videos.map(
 										(video, index) => (
@@ -471,9 +469,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 												className="admin-video-frame"
 											>
 												<div className="form-group">
-													<label>
-														Ścieżka do filmu:
-													</label>
+													<label>Video Path:</label>
 													<input
 														type="text"
 														className="form-control"
@@ -490,7 +486,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 													/>
 												</div>
 												<div className="form-group">
-													<label>Opis filmu:</label>
+													<label>
+														Video Description:
+													</label>
 													<input
 														type="text"
 														className="form-control"
@@ -508,7 +506,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 												</div>
 												<div className="form-group">
 													<label>
-														Czas startu (sekundy):
+														Start Time (seconds):
 													</label>
 													<input
 														type="number"
@@ -539,7 +537,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 														)
 													}
 												>
-													Usuń
+													Remove
 												</button>
 											</div>
 										)
@@ -554,18 +552,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 											})
 										}
 									>
-										+ Dodaj film
+										+ Add Video
 									</button>
 								</div>
 							</div>
 
-							{/* Sekcja powitalna */}
 							<div className="admin-section">
-								<h4>Sekcja powitalna</h4>
+								<h4>Welcome Section</h4>
 								<div className="form-group">
-									<label>
-										Tekst powitalny (po „Witamy w”):
-									</label>
+									<label>Welcome Text:</label>
 									<input
 										type="text"
 										className="form-control"
@@ -583,7 +578,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 									/>
 								</div>
 								<div className="form-group">
-									<label>Podtytuł:</label>
+									<label>Subtitle:</label>
 									<input
 										type="text"
 										className="form-control"
@@ -602,9 +597,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 								</div>
 							</div>
 
-							{/* Statystyki – (zachowane do odczytu, ale globalne) */}
 							<div className="admin-section">
-								<h4>Statystyki (globalne – bez edycji)</h4>
+								<h4>Statistics (Global - Read Only)</h4>
 								<div className="row">
 									<div className="col-md-4">
 										<input
@@ -639,9 +633,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 								</div>
 							</div>
 
-							{/* Galeria zdjęć (DÓŁ STRONY) */}
 							<div className="admin-section">
-								<h4>Galeria zdjęć (karuzela)</h4>
+								<h4>Image Gallery (Carousel)</h4>
 								<div className="admin-gallery-images">
 									{currentPageData!.gallery.images.map(
 										(image, index) => (
@@ -650,9 +643,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 												className="admin-gallery-item"
 											>
 												<div className="form-group">
-													<label>
-														Ścieżka do obrazu:
-													</label>
+													<label>Image Path:</label>
 													<input
 														type="text"
 														className="form-control"
@@ -670,7 +661,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 												</div>
 												<div className="form-group">
 													<label>
-														Opis obrazu (alt):
+														Image Description (alt):
 													</label>
 													<input
 														type="text"
@@ -696,7 +687,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 														)
 													}
 												>
-													Usuń
+													Remove
 												</button>
 											</div>
 										)
@@ -710,14 +701,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 											)
 										}
 									>
-										+ Dodaj obraz
+										+ Add Image
 									</button>
 								</div>
 							</div>
 
-							{/* Miasta (sekcja „Gdzie działamy?”) */}
 							<div className="admin-section">
-								<h4>Miasta obsługi</h4>
+								<h4>Service Cities</h4>
 								<div className="admin-cities">
 									{currentPageData!.locations.cities.map(
 										(city, index) => (
@@ -747,7 +737,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 														)
 													}
 												>
-													Usuń
+													Remove
 												</button>
 											</div>
 										)
@@ -761,14 +751,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 											)
 										}
 									>
-										+ Dodaj miasto
+										+ Add City
 									</button>
 								</div>
 							</div>
 
-							{/* Stopka */}
 							<div className="admin-section">
-								<h4>Stopka</h4>
+								<h4>Footer</h4>
 								<div className="row">
 									<div className="col-md-6">
 										<div className="form-group">
@@ -848,7 +837,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 									</div>
 								</div>
 								<div className="form-group">
-									<label>Numer telefonu:</label>
+									<label>Phone Number:</label>
 									<input
 										type="tel"
 										className="form-control"
@@ -868,108 +857,149 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 						</>
 					) : (
 						<>
-							{/* MEDIA LIBRARY */}
 							<div className="admin-section">
-								<h4>Dodaj media</h4>
+								<h4>Add Media</h4>
 								<div className="form-group">
-									<label>Wybierz typ mediów:</label>
-									<select 
-										id="mediaType" 
-										className="form-control" 
-										style={{ marginBottom: '15px', maxWidth: '200px' }}
+									<label>Select Media Type:</label>
+									<select
+										id="mediaType"
+										className="form-control"
+										style={{
+											marginBottom: "15px",
+											maxWidth: "200px",
+										}}
 									>
-										<option value="main">Strona główna</option>
-										<option value="subpage">Podstrona</option>
+										<option value="main">Main Page</option>
+										<option value="subpage">Subpage</option>
 									</select>
 								</div>
 								<div className="form-group">
-									<label>Wybierz kategorię:</label>
-									<select 
-										id="mediaCategory" 
-										className="form-control" 
-										style={{ marginBottom: '15px', maxWidth: '200px' }}
+									<label>Select Category:</label>
+									<select
+										id="mediaCategory"
+										className="form-control"
+										style={{
+											marginBottom: "15px",
+											maxWidth: "200px",
+										}}
 									>
-										<option value="images">Obrazy</option>
-										<option value="videos">Filmy</option>
+										<option value="images">Images</option>
+										<option value="videos">Videos</option>
 									</select>
 								</div>
 								<div className="form-group">
-									<label>Wybierz plik (tylko .webp dla obrazów, .webm dla filmów):</label>
+									<label>
+										Select File (only .webp for images,
+										.webm for videos):
+									</label>
 									<input
 										type="file"
 										accept=".webp,.webm"
 										onChange={async (e) => {
 											const file = e.target.files?.[0];
 											if (!file) return;
-											
+
 											// Validate file type
-											const isWebp = file.name.toLowerCase().endsWith('.webp');
-											const isWebm = file.name.toLowerCase().endsWith('.webm');
-											
+											const isWebp = file.name
+												.toLowerCase()
+												.endsWith(".webp");
+											const isWebm = file.name
+												.toLowerCase()
+												.endsWith(".webm");
+
 											if (!isWebp && !isWebm) {
-												alert('Dozwolone są tylko pliki .webp (obrazy) i .webm (filmy)');
+												alert(
+													"Only .webp (images) and .webm (videos) files are allowed"
+												);
 												return;
 											}
-											
-											const mediaTypeSelect = document.getElementById('mediaType') as HTMLSelectElement;
-											const mediaCategorySelect = document.getElementById('mediaCategory') as HTMLSelectElement;
-											
-											const mediaType = mediaTypeSelect.value;
-											const category = mediaCategorySelect.value;
-											
-											// Determine target path
-											const basePath = mediaType === 'main' ? '/assets/main' : '/assets/subpages';
+
+											const mediaTypeSelect =
+												document.getElementById(
+													"mediaType"
+												) as HTMLSelectElement;
+											const mediaCategorySelect =
+												document.getElementById(
+													"mediaCategory"
+												) as HTMLSelectElement;
+
+											const mediaType =
+												mediaTypeSelect.value;
+											const category =
+												mediaCategorySelect.value;
+
+											const basePath =
+												mediaType === "main"
+													? "/assets/main"
+													: "/assets/subpages";
 											const targetPath = `${basePath}/${category}`;
-											
+
 											try {
-												// Show loading state
-												const loadingMsg = document.createElement('div');
-												loadingMsg.textContent = 'Przesyłanie pliku...';
-												loadingMsg.style.color = '#666';
-												loadingMsg.style.fontSize = '14px';
-												loadingMsg.style.marginTop = '10px';
-												e.target.parentElement?.appendChild(loadingMsg);
-												
-												// Upload file to the correct folder
-												const fullPath = await handleFileUpload(file, targetPath);
-												
-												const id = Date.now().toString(36);
-												
+												const loadingMsg =
+													document.createElement(
+														"div"
+													);
+												loadingMsg.textContent =
+													"Uploading file...";
+												loadingMsg.style.color = "#666";
+												loadingMsg.style.fontSize =
+													"14px";
+												loadingMsg.style.marginTop =
+													"10px";
+												e.target.parentElement?.appendChild(
+													loadingMsg
+												);
+
+												const fullPath =
+													await handleFileUpload(
+														file,
+														targetPath
+													);
+
+												const id =
+													Date.now().toString(36);
+
 												const item: MediaItem = {
 													id,
 													name: file.name,
-													type: isWebp ? "image" : "video",
+													type: isWebp
+														? "image"
+														: "video",
 													path: fullPath,
-													preview: fullPath // Use the actual path as preview
+													preview: fullPath,
 												};
-												
+
 												saveMedia([item, ...media]);
-												
-												// Remove loading message and show success
+
 												loadingMsg.remove();
-												alert(`Plik został przesłany!\nŚcieżka: ${fullPath}`);
-												
-												// Clear the input
-												e.target.value = '';
-												
+												alert(
+													`File uploaded successfully!\nPath: ${fullPath}`
+												);
+
+												e.target.value = "";
 											} catch (error) {
-												// Remove loading message if exists
-												const loadingMsg = e.target.parentElement?.querySelector('div');
-												if (loadingMsg) loadingMsg.remove();
-												
-												alert('Błąd podczas przesyłania pliku: ' + (error as Error).message);
+												const loadingMsg =
+													e.target.parentElement?.querySelector(
+														"div"
+													);
+												if (loadingMsg)
+													loadingMsg.remove();
+
+												alert(
+													"File upload error: " +
+														(error as Error).message
+												);
 											}
 										}}
 									/>
 									<small className="form-text text-muted">
-										Akceptowane formaty: .webp (obrazy), .webm (filmy)
+										Accepted formats: .webp (images), .webm
+										(videos)
 									</small>
 								</div>
 
 								<div className="form-group">
-									<label>
-										Lub dodaj ścieżkę do istniejącego pliku
-									</label>
+									<label>Or add path to existing file</label>
 									<div style={{ display: "flex", gap: 8 }}>
 										<input
 											id="manualMediaPath"
@@ -986,18 +1016,29 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 													) as HTMLInputElement;
 												const val = input.value.trim();
 												if (!val) return;
-												
-												// Validate file extension
-												if (!val.toLowerCase().endsWith('.webp') && !val.toLowerCase().endsWith('.webm')) {
-													alert('Dozwolone są tylko pliki .webp i .webm');
+
+												if (
+													!val
+														.toLowerCase()
+														.endsWith(".webp") &&
+													!val
+														.toLowerCase()
+														.endsWith(".webm")
+												) {
+													alert(
+														"Only .webp and .webm files are allowed"
+													);
 													return;
 												}
-												
+
 												const id =
 													Date.now().toString(36);
-												const isWebp = val.toLowerCase().endsWith('.webp');
-												const type: MediaItem["type"] = isWebp ? "image" : "video";
-												
+												const isWebp = val
+													.toLowerCase()
+													.endsWith(".webp");
+												const type: MediaItem["type"] =
+													isWebp ? "image" : "video";
+
 												const item: MediaItem = {
 													id,
 													name:
@@ -1010,20 +1051,21 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 												input.value = "";
 											}}
 										>
-											Dodaj
+											Add
 										</button>
 									</div>
 									<small className="form-text text-muted">
-										Przykład: /assets/main/images/zdjecie.webp lub /assets/main/videos/film.webm
+										Example: /assets/main/images/photo.webp
+										or /assets/main/videos/video.webm
 									</small>
 								</div>
 							</div>
 
 							<div className="admin-section">
-								<h4>Twoje media</h4>
+								<h4>Your Media</h4>
 								{media.length === 0 ? (
 									<div className="text-muted">
-										Brak mediów. Dodaj coś powyżej.
+										No media files. Add some above.
 									</div>
 								) : (
 									<div className="row">
@@ -1144,8 +1186,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 																		);
 																	}}
 																>
-																	Kopiuj
-																	ścieżkę
+																	Copy Path
 																</button>
 																<button
 																	className="btn btn-danger btn-sm"
@@ -1161,8 +1202,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 																		)
 																	}
 																>
-																	Usuń z
-																	biblioteki
+																	Remove
 																</button>
 															</div>
 														</div>
@@ -1173,17 +1213,39 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 									</div>
 								)}
 								<small className="text-muted">
-									<strong>Automatyczne zapisywanie plików:</strong><br/>
-									1. Wybierz typ mediów (główna/podstrona) i kategorię (obrazy/filmy)<br/>
-									2. Wybierz plik .webp (obrazy) lub .webm (filmy) - max 50MB<br/>
-									3. Plik zostanie automatycznie przesłany do odpowiedniego folderu na serwerze<br/>
-									4. Struktura folderów:<br/>
-									&nbsp;&nbsp;- <code>/assets/main/images/</code> - obrazy strony głównej<br/>
-									&nbsp;&nbsp;- <code>/assets/main/videos/</code> - filmy strony głównej<br/>
-									&nbsp;&nbsp;- <code>/assets/subpages/images/</code> - obrazy podstron<br/>
-									&nbsp;&nbsp;- <code>/assets/subpages/videos/</code> - filmy podstron<br/>
-									5. Skopiuj ścieżkę z biblioteki i użyj w galerii<br/>
-									<strong>Uwaga:</strong> Akceptowane tylko pliki .webp i .webm
+									<strong>Automatic file upload:</strong>
+									<br />
+									1. Select media type (main/subpage) and
+									category (images/videos)
+									<br />
+									2. Choose .webp (images) or .webm (videos)
+									file - max 50MB
+									<br />
+									3. File will be automatically uploaded to
+									the correct server folder
+									<br />
+									4. Folder structure:
+									<br />
+									&nbsp;&nbsp;-{" "}
+									<code>/assets/main/images/</code> - main
+									page images
+									<br />
+									&nbsp;&nbsp;-{" "}
+									<code>/assets/main/videos/</code> - main
+									page videos
+									<br />
+									&nbsp;&nbsp;-{" "}
+									<code>/assets/subpages/images/</code> -
+									subpage images
+									<br />
+									&nbsp;&nbsp;-{" "}
+									<code>/assets/subpages/videos/</code> -
+									subpage videos
+									<br />
+									5. Copy path from library and use in gallery
+									<br />
+									<strong>Note:</strong> Only .webp and .webm
+									files accepted
 								</small>
 							</div>
 						</>
@@ -1201,7 +1263,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 						onClick={(e) => e.stopPropagation()}
 					>
 						<div className="admin-modal-header">
-							<h5>Dodaj nową podstronę</h5>
+							<h5>Add New Subpage</h5>
 							<button
 								className="btn-close"
 								onClick={() => setShowAddPageModal(false)}
@@ -1211,7 +1273,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 						</div>
 						<div className="admin-modal-body">
 							<div className="form-group">
-								<label>Nazwa strony:</label>
+								<label>Page Name:</label>
 								<input
 									type="text"
 									className="form-control"
@@ -1223,7 +1285,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 								/>
 							</div>
 							<div className="form-group">
-								<label>Adres URL (slug):</label>
+								<label>URL Address (slug):</label>
 								<input
 									type="text"
 									className="form-control"
@@ -1234,7 +1296,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 									placeholder="warszawa"
 								/>
 								<small className="form-text text-muted">
-									Adres będzie: /{newPageSlug}
+									Address will be: /{newPageSlug}
 								</small>
 							</div>
 						</div>
@@ -1243,7 +1305,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 								className="btn btn-secondary"
 								onClick={() => setShowAddPageModal(false)}
 							>
-								Anuluj
+								Cancel
 							</button>
 							<button
 								className="btn btn-primary"
@@ -1252,7 +1314,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 									!newPageName.trim() || !newPageSlug.trim()
 								}
 							>
-								Dodaj stronę
+								Add Page
 							</button>
 						</div>
 					</div>

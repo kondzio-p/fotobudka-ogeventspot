@@ -49,7 +49,6 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({ data }) => {
 		}
 	};
 
-	// slug bez znaków specjalnych (podstrony)
 	const slugify = (str: string) =>
 		str
 			.normalize("NFD")
@@ -60,7 +59,6 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({ data }) => {
 			.replace(/\s+/g, "-")
 			.replace(/-+/g, "-");
 
-	// Handle escape key
 	React.useEffect(() => {
 		const handleEscape = (e: KeyboardEvent) => {
 			if (e.key === "Escape") {
