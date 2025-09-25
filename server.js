@@ -20,6 +20,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
+// Serve robots.txt and sitemap.xml
+app.get("/robots.txt", (req, res) => {
+	res.type("text/plain");
+	res.sendFile(path.join(__dirname, "public", "robots.txt"));
+});
+
+app.get("/sitemap.xml", (req, res) => {
+	res.type("application/xml");
+	res.sendFile(path.join(__dirname, "public", "sitemap.xml"));
+});
+
 const ensureDirectoryExists = (dirPath) => {
 	if (!fs.existsSync(dirPath)) {
 		fs.mkdirSync(dirPath, { recursive: true });
@@ -262,6 +273,75 @@ app.delete("/api/delete-file", (req, res) => {
 
 app.get("/api/health", (req, res) => {
 	res.json({ status: "OK", timestamp: new Date().toISOString() });
+});
+
+// Regenerate sitemap endpoint
+app.post("/api/regenerate-sitemap", (req, res) => {
+	try {
+		const sitemapPath = path.join(__dirname, "public", "sitemap.xml");
+		const currentDate = new Date().toISOString().split("T")[0];
+
+		// Base cities from default data
+		const cities = [
+			"chojnice",
+			"gdansk",
+			"sopot",
+			"gdynia",
+			"bytow",
+			"kartuzy",
+			"koscierzyna",
+			"slupsk",
+			"lebork",
+			"ustka",
+			"malbork",
+			"tczew",
+			"wejherowo",
+			"puck",
+			"hel",
+			"starogard-gdanski",
+		];
+
+		let sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Main page -->
+  <url>
+    <loc>https://fotobudka-ogeventspot.pl/</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+`;
+
+		// Add city pages
+		cities.forEach((city, index) => {
+			const priority = index < 4 ? "0.8" : index < 10 ? "0.7" : "0.6";
+			sitemapContent += `  <url>
+    <loc>https://fotobudka-ogeventspot.pl/${city}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>${priority}</priority>
+  </url>
+  
+`;
+		});
+
+		sitemapContent += `</urlset>`;
+
+		fs.writeFileSync(sitemapPath, sitemapContent);
+
+		res.json({
+			success: true,
+			message: "Sitemap regenerated successfully",
+			urls: cities.length + 1,
+		});
+	} catch (error) {
+		console.error("Sitemap regeneration error:", error);
+		res.status(500).json({
+			success: false,
+			message: "Failed to regenerate sitemap",
+		});
+	}
 });
 
 app.use((error, req, res, next) => {

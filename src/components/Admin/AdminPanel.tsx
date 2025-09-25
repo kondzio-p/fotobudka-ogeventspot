@@ -1212,6 +1212,46 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 										))}
 									</div>
 								)}
+
+								<div className="admin-section">
+									<h4>SEO Management</h4>
+									<div className="form-group">
+										<button
+											className="btn btn-primary"
+											onClick={async () => {
+												try {
+													const response =
+														await fetch(
+															"/api/regenerate-sitemap",
+															{
+																method: "POST",
+															}
+														);
+													if (response.ok) {
+														alert(
+															"Sitemap regenerated successfully!"
+														);
+													} else {
+														alert(
+															"Failed to regenerate sitemap"
+														);
+													}
+												} catch (error) {
+													alert(
+														"Error regenerating sitemap"
+													);
+												}
+											}}
+										>
+											Regenerate Sitemap
+										</button>
+									</div>
+									<small className="form-text text-muted">
+										Regenerate sitemap.xml after
+										adding/removing subpages
+									</small>
+								</div>
+
 								<small className="text-muted">
 									<strong>Automatic file upload:</strong>
 									<br />
