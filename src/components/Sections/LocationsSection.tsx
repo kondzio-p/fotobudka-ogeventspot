@@ -51,9 +51,18 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({ data }) => {
 
 	const slugify = (str: string) =>
 		str
-			.normalize("NFD")
-			.replace(/[\u0300-\u036f]/g, "")
 			.toLowerCase()
+			.replace(/ą/g, "a")
+			.replace(/ć/g, "c")
+			.replace(/ę/g, "e")
+			.replace(/ł/g, "l")
+			.replace(/ń/g, "n")
+			.replace(/ó/g, "o")
+			.replace(/ś/g, "s")
+			.replace(/ż/g, "z")
+			.replace(/ź/g, "z")
+			.normalize("NFD")
+			.replace(/[\u0300-\u036f]/g, "") // usuwanie reszty diakrytyków
 			.replace(/[^a-z0-9\s-]/g, "")
 			.trim()
 			.replace(/\s+/g, "-")
