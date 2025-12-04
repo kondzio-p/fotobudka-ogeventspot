@@ -4,6 +4,7 @@ import WelcomeSection from "../Sections/WelcomeSection";
 import StatsSection from "../Sections/StatsSection";
 import ImageGallerySection from "../Sections/ImageGallerySection";
 import LocationsSection from "../Sections/LocationsSection";
+import FaqSection from "../Sections/FaqSection";
 import type { PageData } from "../../data/pageData";
 
 interface MainPageProps {
@@ -21,6 +22,8 @@ const MainPage: React.FC<MainPageProps> = ({ data }) => {
 				}}
 			/>
 			<StatsSection data={data?.stats} />
+			{/* Dodana nowa sekcja FAQ pomiędzy Statystykami a Galerią */}
+			<FaqSection />
 			<ImageGallerySection data={{ images: data?.gallery.images }} />
 			<LocationsSection data={{ cities: data?.locations.cities }} />
 		</>
