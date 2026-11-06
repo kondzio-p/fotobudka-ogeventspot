@@ -19,7 +19,7 @@ Wygląd jest wspólny z fotobudka-chojnice: `src/styles/site.css` to ten sam pli
 
 ## Podgląd bez Supabase
 
-Bez zmiennych `VITE_SUPABASE_URL` i `VITE_SUPABASE_ANON_KEY` strona startuje w trybie demo: treści z `src/data/demoPages.ts` (strona główna, Gdańsk, Słupsk), panel pod `/admin/panel` bez logowania, zmiany tylko do odświeżenia strony.
+Przy `npm run dev` bez zmiennych `VITE_SUPABASE_URL` i `VITE_SUPABASE_ANON_KEY` strona startuje w trybie demo: treści z `src/data/demoPages.ts` (strona główna, Gdańsk, Słupsk), panel pod `/admin/panel` bez logowania, zmiany tylko do odświeżenia strony.
 
 ## Uruchomienie
 

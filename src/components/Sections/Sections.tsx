@@ -98,9 +98,9 @@ export const StepsSection: React.FC = () => (
 		</header>
 		<ol className="steps-list">
 			{[
-				["Zadzwoń lub napisz", "Podaj datę i miejsce imprezy. Od razu sprawdzimy, czy termin jest wolny."],
-				["Wybierz atrakcje", "Dobierz fotobudkę, fotolustro i efekty. Przy pakiecie cena jest niższa."],
-				["Bawcie się", "Przywozimy, montujemy i obsługujemy wszystko na miejscu. Wy tylko pozujecie."],
+				["Zadzwoń lub napisz", "Podaj datę i miejsce imprezy, a od razu sprawdzimy, czy termin jest wolny."],
+				["Wybierz atrakcje", "Dobierz fotobudkę, fotolustro i efekty specjalne. Przy kilku atrakcjach przygotujemy korzystniejszą cenę."],
+				["Bawcie się", "Przywozimy, montujemy i obsługujemy wszystko na miejscu. Do Was należy tylko obowiązek dobrej zabawy."],
 			].map(([title, text], i) => (
 				<li key={title} className="step reveal">
 					<span className="step-num">0{i + 1}</span>
@@ -160,14 +160,13 @@ interface FaqCitiesProps {
 }
 
 export const FaqCitiesSection: React.FC<FaqCitiesProps> = ({ cities, pages, cityName }) => {
-	const where = cityName ? `do miejscowości ${cityName} i okolic` : "poza Chojnice? (Gdańsk, Słupsk, itp.)";
 	const faq = [
 		{
-			q: `Ile kosztuje wynajem fotobudki 360°${cityName ? ` (${cityName})` : " w Chojnicach"}?`,
+			q: cityName ? "Ile kosztuje wynajem fotobudki 360°?" : "Ile kosztuje wynajem fotobudki 360° w Chojnicach?",
 			a: "Cenę ustalamy indywidualnie w zależności od czasu wynajmu i dodatkowych usług. Skontaktuj się z nami, aby uzyskać wycenę.",
 		},
 		{
-			q: cityName ? `Czy dojeżdżacie ${where}?` : `Czy dojeżdżacie ${where}`,
+			q: cityName ? `Czy obsługujecie wesela w mieście ${cityName} i okolicach?` : "Czy dojeżdżacie poza Chojnice? (Gdańsk, Słupsk, itp.)",
 			a: "Tak! Obsługujemy miasta poza Chojnicami, na terenie całego Pomorza.",
 		},
 		{

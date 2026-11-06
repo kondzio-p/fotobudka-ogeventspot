@@ -5,7 +5,11 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Bez danych Supabase strona działa w trybie demo: treści z src/data/demoPages.ts,
 // panel bez logowania, zmiany trzymane tylko w pamięci przeglądarki.
-export const isDemoMode = !supabaseUrl || !supabaseAnonKey;
+export const isDemoMode = import.meta.env.DEV && (!supabaseUrl || !supabaseAnonKey);
+
+if (!isDemoMode && (!supabaseUrl || !supabaseAnonKey)) {
+	throw new Error("Missing Supabase environment variables");
+}
 
 export const supabase = createClient(
 	supabaseUrl || "http://localhost:54321",

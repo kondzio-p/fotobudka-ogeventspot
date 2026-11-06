@@ -8,7 +8,7 @@
 	color: var(--muted);
 }
 .page-loader .script {
-	font-size: 42px;
+	font-size: 28px;
 }
 .demo-badge {
 	position: fixed;
