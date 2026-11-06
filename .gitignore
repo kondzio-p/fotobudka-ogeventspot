@@ -7,3 +7,6 @@ logs/
 .env.production
 .supabase/
 .env.example
+
+# Pliki lokalne
+repopack*.txt
