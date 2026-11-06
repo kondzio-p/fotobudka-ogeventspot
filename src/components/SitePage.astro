@@ -1,0 +1,244 @@
+---
+// Strona główna i strony miast: ten sam układ co fotobudka-chojnice.pl.
+// Treści z tabeli "pages" (panel /admin); puste pola miasta biorą wartość ze strony "home".
+import Site from '../layouts/Site.astro';
+
+const { page = {}, home = {}, cities = [], isHome = false } = Astro.props;
+const pick = (key) => (page[key] && String(page[key]).trim()) || (home[key] && String(home[key]).trim()) || '';
+const list = (key) => (Array.isArray(page[key]) && page[key].length ? page[key] : Array.isArray(home[key]) ? home[key] : []);
+
+const cityName = page.city_name || 'Chojnice';
+const title = pick('meta_title') || `Fotobudka ${cityName} | OG Events`;
+const description = pick('meta_description') || `Fotobudka 360°, fotolustro, ciężki dym, fontanny iskier i neony LED na wesela: ${cityName} i okolice.`;
+const canonical = `https://fotobudka-ogeventspot.pl/${isHome ? '' : page.slug}`;
+const phone = pick('contact_phone') || '576 934 594';
+const tel = 'tel:+48' + phone.replace(/\D/g, '').replace(/^48(?=\d{9}$)/, '');
+
+const h1 = isHome ? 'Fotobudka 360° i fotolustro w Chojnicach' : `Fotobudka ${cityName}: 360° i fotolustro na wesela`;
+const lead = isHome
+  ? 'Na wesela, urodziny i imprezy firmowe w Chojnicach i na całym Pomorzu. Do tego ciężki dym, fontanny iskier i neony LED, z dojazdem i obsługą.'
+  : `Przyjeżdżamy na wesela i imprezy w mieście ${cityName} i okolicy. Fotobudka 360°, fotolustro, ciężki dym, fontanny iskier i neony LED, z dojazdem i obsługą.`;
+const offersLead = pick('hero_subtitle') || 'Każdą atrakcję można zamówić osobno albo w pakiecie, wtedy cena jest niższa.';
+
+const offers = [
+  { key: '360', name: 'Fotobudka 360°', text: pick('offer_360_desc') || 'Obrotowa platforma i filmy w zwolnionym tempie, nagrywane przez cały wieczór.', img: '/images/360.webp', w: 908, h: 1259, alt: 'Fotobudka 360° z oświetleniem na czerwonym dywanie' },
+  { key: 'lustro', name: 'Fotolustro', text: pick('offer_mirror_desc') || 'Wydruki zdjęć od ręki, bez limitu, i księga gości z kompletem zdjęć.', img: '/images/mirror.webp', w: 1536, h: 2048, alt: 'Fotolustro z rekwizytami na sali weselnej' },
+  { key: 'dym', name: 'Ciężki dym', text: pick('offer_smoke_desc') || 'Gęsta, biała mgła przy ziemi na pierwszy taniec i wejście pary młodej.', img: '/images/heavysmoke.webp', w: 2048, h: 1366, alt: 'Para młoda tańczy w ciężkim dymie' },
+  { key: 'iskry', name: 'Fontanny iskier', text: pick('offer_sparks_desc') || 'Zimne ognie bez zagrożenia, przy torcie i na wejście pary młodej.', img: '/images/fountain.webp', w: 2048, h: 1536, alt: 'Fontanny iskier podczas pierwszego tańca' },
+  { key: 'neony', name: 'Neony LED', text: pick('offer_neons_desc') || 'Napisy z imionami, datą albo hasłem jako tło do zdjęć.', img: '/images/neons.webp', w: 2000, h: 1500, alt: 'Neonowy napis LED nad stołem pary młodej' },
+];
+
+// filmy: z panelu, a bez nich cztery filmy z wesel; poster dla plików filmikN
+const fallbackVideos = ['/videos/filmik1s6.webm', '/videos/filmik2.webm', '/videos/filmik3.webm', '/videos/filmik4.webm'].map((src) => ({ src }));
+const videos = list('hero_videos').filter((v) => v && v.src);
+const films = (videos.length ? videos : fallbackVideos).slice(0, 4);
+const posterFor = (src) => {
+  const n = String(src).match(/filmik(\d)/)?.[1];
+  return n ? `/videos/poster_filmik${n}.webp` : undefined;
+};
+while (films.length < 4) films.push(fallbackVideos[films.length]);
+const [heroFilm, ...otherFilms] = films;
+
+const gallery = list('gallery_images').filter((g) => g && g.src).slice(0, 6);
+const cityLinks = cities.filter((c) => c.slug && c.slug !== 'home' && c.city_name);
+const cityNames = cityLinks.map((c) => c.city_name);
+const dojazd = cityNames.length
+  ? `Tak, na całe Pomorze i okolice, między innymi: ${cityNames.join(', ')}.`
+  : 'Tak, na całe Pomorze i okolice.';
+---
+<Site title={title} description={description} canonical={canonical}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org', '@type': 'LocalBusiness', name: `OG Events - Fotobudka ${cityName}`,
+    description, url: canonical, telephone: '+48 ' + phone, image: 'https://fotobudka-ogeventspot.pl/images/heavysmoke.jpg',
+    address: { '@type': 'PostalAddress', addressLocality: cityName, addressRegion: 'Pomorskie' },
+    openingHours: 'Mo-Fr 09:00-20:00',
+    sameAs: ['https://www.facebook.com/profile.php?id=61553668165091', 'https://www.instagram.com/og.eventspot/'],
+  })} />
+
+  <header class="nav nav--split">
+    <div class="wrap nav__bar">
+      <a class="skip" href="#atrakcje">Przejdź do oferty</a>
+      <nav class="nav__links" aria-label="Menu główne">
+        <div class="nav__item"><a class="nav__link" href="#atrakcje">Atrakcje</a></div>
+        <div class="nav__item"><a class="nav__link" href="#filmy">Filmy</a></div>
+        <div class="nav__item"><a class="nav__link" href="#faq">Pytania</a></div>
+        <div class="nav__item"><a class="nav__link" href="#contact">Kontakt</a></div>
+      </nav>
+      <a class="nav__logo" href="/" aria-label="OG Events, strona główna"><img class="nav__logo-img" src="/images/og-events-logo-black.webp" width="397" height="227" alt="OG Events"></a>
+      <div class="nav__actions"><a class="btn btn--primary" href="#rezerwacja">Sprawdź wolny termin</a></div>
+      <button class="nav__toggle" type="button" aria-expanded="false" aria-label="Menu">
+        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero hero--split" aria-labelledby="hero-h">
+      <div class="wrap"><div class="hero-text grid hero__grid">
+        <div class="hero__text span-5">
+          <p class="hero__kicker">Rezerwacje od poniedziałku do piątku, 9:00–20:00</p>
+          <h1 id="hero-h">{h1}</h1>
+          <p class="hero__lead">{lead}</p>
+          <div class="btn-row"><a class="btn btn--primary" href="#rezerwacja">Sprawdź wolny termin<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></a><a class="btn btn--secondary" href="#atrakcje">Zobacz atrakcje</a></div>
+        </div>
+        <div class="hero__media span-6 start-7 film" data-film>
+          <video src={heroFilm.src} poster={posterFor(heroFilm.src)} muted loop playsinline preload={posterFor(heroFilm.src) ? 'none' : 'metadata'} aria-label="Film z wesela"></video>
+          <button class="film__play" type="button" aria-label="Odtwórz film"><span aria-hidden="true"></span></button>
+        </div>
+      </div></div>
+    </section>
+
+    <section class="section" id="atrakcje" aria-labelledby="atrakcje-h">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="atrakcje-h">Atrakcje na wesele{isHome ? '' : `: ${cityName}`}</h2>
+          <p>{offersLead}</p>
+        </div>
+        <div class="grid grid--top fill" data-peek>
+          <div class="span-5">
+            <ul class="rows">
+              {offers.map((o) => (
+                <li data-peek-to={o.key} tabindex="0"><span class="rows__name">{o.name}</span><p>{o.text}</p></li>
+              ))}
+            </ul>
+          </div>
+          <div class="frame frame--photo frame--fill span-6 start-7">
+            {offers.map((o, i) => (
+              <img class="frame__img" data-peek-for={o.key} src={o.img} width={o.w} height={o.h} alt={o.alt} hidden={i > 0} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="rezerwacja" aria-labelledby="rezerwacja-h">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="rezerwacja-h">Rezerwacja terminu w 3 krokach</h2>
+          <p>Termin potwierdzamy od razu w rozmowie telefonicznej.</p>
+        </div>
+        <div class="grid grid--top fill">
+          <div class="span-5">
+            <ol class="rows steps-rows">
+              <li><span class="step-num">1</span><span class="rows__name">Podaj datę i miejsce</span><p>Od razu sprawdzimy, czy termin jest wolny.</p></li>
+              <li><span class="step-num">2</span><span class="rows__name">Wybierz atrakcje</span><p>Przy kilku atrakcjach przygotujemy korzystniejszą cenę.</p></li>
+              <li><span class="step-num">3</span><span class="rows__name">Bawcie się</span><p>Przywozimy, montujemy i obsługujemy wszystko na miejscu. Do Was należy tylko obowiązek dobrej zabawy.</p></li>
+            </ol>
+          </div>
+          <div class="span-6 start-7 booking">
+            <p class="t-label muted">Telefon</p>
+            <a class="booking__phone" href={tel}>{phone}</a>
+            <dl class="hours"><dt>Poniedziałek–piątek</dt><dd>9:00–20:00</dd></dl>
+            <p>Wycenę podajemy od razu przez telefon. Możesz też napisać do nas na Facebooku albo Instagramie.</p>
+            <ul class="booking__apps">
+              <li><a href="https://www.facebook.com/profile.php?id=61553668165091" target="_blank" rel="noopener"><img class="ic ic-32" src="/assets/icons/logos-facebook.svg" alt="" width="32" height="32"><span>Facebook, @OG Eventspot</span></a></li>
+              <li><a href="https://www.instagram.com/og.eventspot/" target="_blank" rel="noopener"><img class="ic ic-32" src="/assets/icons/instagram-colour.svg" alt="" width="32" height="32"><span>Instagram, @og.eventspot</span></a></li>
+            </ul>
+            <div class="btn-row"><a class="btn btn--primary" href={tel}>Zadzwoń po wycenę</a></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="filmy" aria-labelledby="filmy-h">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="filmy-h">Filmy z fotobudki 360°</h2>
+          <p>Fotobudka 360° i goście na sali, nagrania bez montażu.</p>
+        </div>
+        <div class="grid fill">
+          {otherFilms.slice(0, 2).map((f, i) => (
+            <div class={`frame frame--photo ${i === 0 ? 'span-6' : 'span-6 start-7'} film film--card`} data-film>
+              <video src={f.src} poster={posterFor(f.src)} muted loop playsinline preload={posterFor(f.src) ? 'none' : 'metadata'} aria-label="Film z wesela"></video>
+              <button class="film__play" type="button" aria-label="Odtwórz film"><span aria-hidden="true"></span></button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {gallery.length > 0 && (
+      <section class="section" id="galeria" aria-labelledby="galeria-h">
+        <div class="wrap">
+          <div class="section-head">
+            <h2 id="galeria-h">Zdjęcia z wesel</h2>
+            <p>Nasze atrakcje na salach weselnych na Pomorzu.</p>
+          </div>
+          <div class="photo-grid">
+            {gallery.map((g) => (
+              <div class="frame frame--photo photo-grid__item"><img class="frame__img" src={g.src} alt={g.alt || 'Zdjęcie z wesela'} loading="lazy"></div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <section class="section band" id="faq" aria-labelledby="faq-h" itemscope itemtype="https://schema.org/FAQPage">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="faq-h">Pytania o wynajem fotobudki</h2>
+          <p>Nie ma tu Twojego pytania? <a class="link" href={tel}>Zadzwoń: {phone}</a></p>
+        </div>
+        <div class="grid grid--top fill">
+          <div class="frame frame--photo span-5 film film--faq" data-film>
+            <video src={otherFilms[2].src} poster={posterFor(otherFilms[2].src)} muted loop playsinline preload={posterFor(otherFilms[2].src) ? 'none' : 'metadata'} aria-label="Film z wesela"></video>
+            <button class="film__play" type="button" aria-label="Odtwórz film"><span aria-hidden="true"></span></button>
+          </div>
+          <div class="faq span-6 start-7">
+            {[
+              [isHome ? 'Ile kosztuje wynajem fotobudki 360°?' : `Ile kosztuje fotobudka 360° (${cityName})?`, 'Cenę ustalamy indywidualnie, zależnie od czasu wynajmu i dodatkowych atrakcji. Wycenę podajemy od razu przez telefon.'],
+              [isHome ? 'Czy dojeżdżacie poza Chojnice?' : `Czy obsługujecie wesela w mieście ${cityName}?`, dojazd],
+              ['Czy wydruki z fotolustra są w cenie?', 'Tak. Wydruki są nielimitowane przez cały czas trwania usługi.'],
+              ['Czy można połączyć kilka atrakcji?', 'Tak. Pakiet, na przykład fotolustro z fotobudką 360° albo ciężkim dymem, kosztuje mniej niż suma pojedynczych usług.'],
+            ].map(([q, a]) => (
+              <div class="faq__item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                <h3 itemprop="name">{q}</h3>
+                <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer"><p itemprop="text">{a}</p></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-foot" id="contact" aria-labelledby="close-h">
+    <div class="wrap">
+      <div class="foot-cta">
+        <div>
+          <h2 id="close-h">Sprawdź, czy Twój termin jest wolny</h2>
+          <p>Wycenę podajemy od razu przez telefon, od poniedziałku do piątku, 9:00–20:00.</p>
+        </div>
+        <a class="btn btn--primary foot-cta__btn" href={tel}>Zadzwoń: {phone}</a>
+      </div>
+
+      <div class="foot-grid">
+        <div class="foot-col foot-col--brand">
+          <a href="/" aria-label="OG Events, strona główna"><img class="foot-logo" src="/images/og-events-logo-white.webp" width="397" height="227" alt="OG Events" loading="lazy"></a>
+          <p>Fotobudka 360°, fotolustro i efekty na wesela. Chojnice i całe Pomorze, z dojazdem, montażem i obsługą.</p>
+          <div class="foot-social">
+            <a href="https://www.facebook.com/profile.php?id=61553668165091" target="_blank" rel="noopener" aria-label="OG Events na Facebooku"><img src="/assets/icons/logos-facebook.svg" alt="" width="22" height="22"></a>
+            <a href="https://www.instagram.com/og.eventspot/" target="_blank" rel="noopener" aria-label="OG Events na Instagramie"><img src="/assets/icons/instagram-colour.svg" alt="" width="22" height="22"></a>
+          </div>
+        </div>
+        <nav class="foot-col foot-col--cities" aria-label="Fotobudka w Twoim mieście">
+          <h3>Fotobudka w Twoim mieście</h3>
+          <ul>
+            {cityLinks.map((c) => (<li><a href={`/${c.slug}`}>{c.city_name}</a></li>))}
+          </ul>
+        </nav>
+        <div class="foot-col">
+          <h3>Kontakt</h3>
+          <a class="foot-phone" href={tel}>{phone}</a>
+          <p>Poniedziałek–piątek, 9:00–20:00</p>
+          <p>Chojnice i całe Pomorze</p>
+        </div>
+      </div>
+
+      <div class="foot-legal">
+        <span>© {new Date().getFullYear()} OG Events. Wszelkie prawa zastrzeżone.</span>
+        <a class="foot-credit" href="https://konradzki-media-app.vercel.app/" target="_blank" rel="noopener" aria-label="Strona wykonana przez Konradzki Media"><span>Wykonanie</span><img src="/images/logo-konradzkimedia.svg" width="102" height="30" alt="Konradzki Media" loading="lazy"></a>
+      </div>
+    </div>
+  </footer>
+</Site>

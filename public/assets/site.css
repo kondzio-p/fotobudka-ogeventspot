@@ -1,0 +1,191 @@
+/* Style strony OG Events na systemie tasteskill (system.css, layout.css). */
+
+/* ---------- układ: naturalna wysokość sekcji ----------
+   System skilla ustawia każdej sekcji wysokość równą oknu. Przy niskich ekranach i tabletach treść
+   wylewała się wtedy na sąsiednią sekcję. Tu sekcje rosną z treścią, ze stałym odstępem. */
+:root { --sec-pad: clamp(64px, 7vw, 112px); }
+html { scroll-padding-top: calc(var(--nav, 72px) + 8px); }
+main > :is(section, .section):not(.hero), footer.closing {
+  height: auto !important;
+  min-height: 0 !important;
+  display: block;
+  padding: var(--sec-pad) 0;
+}
+main > :is(section, .section) > .wrap, footer.closing > .wrap { height: auto !important; }
+main > :is(section, .section) > .wrap > .fill { flex: none; }
+footer.closing { padding-bottom: var(--s-7); }
+
+/* hero: na desktopie wypełnia ekran, ale nigdy nie jest wyższy niż jego treść */
+main > .hero {
+  height: auto;
+  min-height: 0;
+  padding: calc(var(--nav, 72px) + var(--s-7)) 0 var(--sec-pad);
+}
+main > .hero > .wrap { height: auto; display: block; }
+.hero--split .hero__grid { align-items: start; }
+.hero--split .hero__text { align-self: center; }
+.hero--split .hero__media {
+  height: auto;
+  aspect-ratio: 4 / 5;
+  max-height: calc(100svh - var(--nav, 72px) - 2 * var(--s-7));
+  min-height: 420px;
+  width: 100%;
+  margin-left: auto;
+}
+@media (max-width: 1023px) {
+  .hero--split .hero__grid { display: flex; flex-direction: column; }
+  .hero--split .hero__text { align-self: stretch; }
+  .hero--split .hero__media { flex: none; aspect-ratio: 4 / 3; max-height: none; min-height: 0; margin-top: var(--s-7); }
+}
+@media (max-width: 639px) {
+  .hero--split .hero__media { aspect-ratio: 1 / 1; }
+}
+
+/* ---------- logo ---------- */
+.nav__logo img.nav__logo-img { height: 56px; width: auto; }
+@media (max-width: 639px) { .nav__logo img.nav__logo-img { height: 40px; } }
+
+/* ---------- filmy z wesel: poster, który rusza po kliknięciu ---------- */
+.film { position: relative; overflow: hidden; border-radius: var(--r-lg); background: var(--p-surface); }
+.film.film > video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--ly-pos, 50% 40%); }
+.film.film > .film__play {
+  position: absolute; left: var(--s-5); bottom: var(--s-5); z-index: 1;
+  width: 56px; height: 56px; border: 0; border-radius: 999px; cursor: pointer;
+  display: grid; place-items: center; background: var(--p-bg); color: var(--p-accent);
+  transition: transform 0.2s ease;
+}
+.film__play:hover { transform: scale(1.06); }
+.film__play span { width: 0; height: 0; margin-left: 4px; border-left: 14px solid currentColor; border-top: 9px solid transparent; border-bottom: 9px solid transparent; }
+.film.is-playing .film__play span { width: 14px; height: 16px; margin: 0; border: 0; border-left: 4px solid currentColor; border-right: 4px solid currentColor; }
+#filmy .film--card { aspect-ratio: 4 / 3; }
+.film--faq { aspect-ratio: 4 / 5; }
+.film--sub { aspect-ratio: 4 / 5; }
+
+/* ---------- atrakcje: zdjęcie obok listy ---------- */
+#atrakcje .frame--fill { position: relative; height: auto; aspect-ratio: 4 / 5; max-height: 680px; width: 100%; }
+@media (max-width: 1023px) {
+  #atrakcje .frame--fill { aspect-ratio: 4 / 3; margin-top: var(--s-6); }
+}
+.rows a.rows__name { color: inherit; text-decoration: none; }
+.rows a.rows__name:hover { color: var(--action); }
+
+/* ---------- rezerwacja ---------- */
+.booking { padding: var(--s-7); background: var(--p-surface); border-radius: var(--r-lg); display: flex; flex-direction: column; gap: var(--s-4); }
+.booking__phone { font: var(--display-weight) clamp(40px, 4vw, 56px)/1.05 var(--font-display); letter-spacing: var(--display-tracking); color: var(--p-ink); text-decoration: none; }
+.booking__apps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
+.booking__apps a { display: inline-flex; align-items: center; gap: var(--s-3); color: var(--p-ink); text-decoration: none; font-weight: 500; }
+.booking__apps a:hover { color: var(--action); }
+.steps-rows li { display: grid; grid-template-columns: 48px 1fr; column-gap: var(--s-4); align-items: start; }
+.steps-rows li > .step-num { grid-row: span 2; }
+.steps-rows li > p { grid-column: 2; }
+
+/* ---------- podstrony: tekst obok filmu ---------- */
+.prose > * + * { margin-top: var(--s-4); }
+.prose h2 { margin-bottom: var(--s-6); }
+.prose h3 { margin-top: var(--s-7); font: var(--display-weight) 28px/1.2 var(--font-display); letter-spacing: var(--display-tracking); }
+.prose p { max-width: 62ch; }
+.list-plain { margin: 0; padding: 0; list-style: none; }
+.list-plain li { padding: var(--s-2) 0; border-bottom: 1px solid var(--line); }
+@media (min-width: 1024px) { #tresc #faq .faq { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--s-6); } }
+
+/* ---------- kolumny pod sobą na węższych ekranach ---------- */
+@media (max-width: 1023px) {
+  main .grid > [class*="span-"] { grid-column: 1 / -1; }
+  main .grid > [class*="span-"] + [class*="span-"] { margin-top: var(--s-6); }
+}
+
+/* ---------- link do pominięcia menu: widoczny tylko po fokusie ---------- */
+.skip { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.skip:focus { width: auto; height: auto; clip-path: none; padding: var(--s-2) var(--s-4); background: var(--p-bg); z-index: 20; }
+
+@media (max-width: 639px) {
+  .booking { padding: var(--s-5); }
+  .film__play { left: var(--s-4); bottom: var(--s-4); width: 48px; height: 48px; }
+}
+
+/* ---------- subtelne rozdzielenie sekcji: co druga na zaokrąglonym, pudrowym pasie ---------- */
+main > section.band {
+  background: var(--p-surface);
+  border-radius: clamp(24px, 4vw, 48px);
+  margin-inline: clamp(8px, 1.5vw, 24px);
+}
+main > section.band + section.band { margin-top: var(--s-5); }
+.band .booking { background: var(--p-bg); }
+.band .film { background: var(--p-bg); }
+.booking { border-radius: var(--r-lg); }
+.rows li { border-radius: 0; }
+
+/* ---------- stopka ---------- */
+.site-foot {
+  margin: var(--s-5) clamp(8px, 1.5vw, 24px) 0;
+  padding: clamp(24px, 4vw, 48px) 0 var(--s-6);
+  background: var(--p-ink);
+  color: var(--p-inv-ink);
+  border-radius: clamp(24px, 4vw, 48px) clamp(24px, 4vw, 48px) 0 0;
+}
+.site-foot a { color: inherit; text-decoration: none; }
+.foot-cta {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-6);
+  padding: clamp(28px, 4vw, 48px);
+  background: var(--p-accent); color: #fff;
+  border-radius: clamp(20px, 3vw, 32px);
+}
+.foot-cta h2 { color: #fff; font-size: clamp(28px, 3.2vw, 44px); line-height: 1.1; }
+.foot-cta p { margin-top: var(--s-3); color: rgba(255, 255, 255, 0.85); max-width: 46ch; }
+.site-foot .foot-cta__btn { background: var(--p-bg); color: var(--p-accent); border-color: transparent; white-space: nowrap; flex: none; }
+.site-foot .foot-cta__btn:hover { background: #fff; }
+.foot-grid {
+  display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: var(--s-8);
+  padding: clamp(48px, 6vw, 72px) 0 var(--s-8);
+}
+.foot-col h3 { font: 500 13px/1.4 var(--font-text); color: var(--p-inv-muted); margin: 0 0 var(--s-4); }
+.foot-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
+.foot-col ul a, .foot-col p { color: rgba(251, 244, 241, 0.82); }
+.foot-col ul a:hover { color: #fff; }
+.foot-col p + p { margin-top: var(--s-2); }
+.foot-col--brand p { margin-top: var(--s-4); max-width: 38ch; }
+.foot-logo { height: 64px; width: auto; display: block; }
+.foot-social { display: flex; gap: var(--s-3); margin-top: var(--s-5); }
+.foot-social a {
+  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px;
+  background: var(--p-bg); transition: transform 0.2s ease, background 0.2s ease;
+}
+.foot-social a:hover { transform: translateY(-2px); background: #fff; }
+.foot-social img { width: 22px; height: 22px; }
+.foot-phone { display: inline-block; font: var(--display-weight) 32px/1.1 var(--font-display); letter-spacing: var(--display-tracking); margin-bottom: var(--s-3); color: #fff; }
+.foot-phone:hover { color: var(--p-surface); }
+.foot-legal {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--s-4);
+  padding-top: var(--s-6); border-top: 1px solid rgba(251, 244, 241, 0.14);
+  font-size: 14px; color: var(--p-inv-muted);
+}
+.foot-credit { display: inline-flex; align-items: center; gap: var(--s-3); opacity: 0.75; transition: opacity 0.2s ease; }
+.foot-credit:hover { opacity: 1; }
+.foot-credit img { height: 28px; width: auto; }
+@media (max-width: 1023px) {
+  .foot-grid { grid-template-columns: 1fr 1fr; }
+  .foot-col--brand { grid-column: 1 / -1; }
+}
+@media (max-width: 639px) {
+  .foot-cta { flex-direction: column; align-items: stretch; }
+  .site-foot .foot-cta__btn { width: 100%; }
+  .foot-grid { grid-template-columns: 1fr; gap: var(--s-7); }
+  .foot-legal { flex-direction: column; align-items: flex-start; }
+}
+
+/* ---------- galeria zdjęć z panelu (fotobudka-ogeventspot) ---------- */
+.photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-5); }
+.photo-grid__item { position: relative; aspect-ratio: 4 / 3; overflow: hidden; border-radius: var(--r-lg); }
+.photo-grid__item .frame__img { transition: transform 0.6s ease; }
+.photo-grid__item:hover .frame__img { transform: scale(1.03); }
+@media (max-width: 1023px) { .photo-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 639px) { .photo-grid { grid-template-columns: 1fr; gap: var(--s-4); } }
+
+/* ---------- stopka: lista miast w dwóch kolumnach ---------- */
+.foot-col--cities ul { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-6); }
+/* pięć zdjęć: dwa u góry, trzy u dołu, bez pustej kratki */
+@media (min-width: 1024px) {
+  .photo-grid:has(> :nth-child(5):last-child) { grid-template-columns: repeat(6, 1fr); }
+  .photo-grid:has(> :nth-child(5):last-child) > :nth-child(-n + 2) { grid-column: span 3; }
+  .photo-grid:has(> :nth-child(5):last-child) > :nth-child(n + 3) { grid-column: span 2; }
+}

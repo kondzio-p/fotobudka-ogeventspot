@@ -1,0 +1,52 @@
+---
+// Layout strony publicznej: ten sam system wyglądu co fotobudka-chojnice.pl (assets/ w public/).
+const { title, description, canonical } = Astro.props;
+---
+<!doctype html>
+<html lang="pl" data-type="service" data-radius="round" data-buttons="pill" data-motion>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{title}</title>
+<meta name="description" content={description}>
+<meta name="site-kind" content="other">
+<meta name="page-type" content="service">
+<meta name="theme-color" content="#fbf4f1">
+{canonical && <link rel="canonical" href={canonical}>}
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:title" content={title}>
+<meta property="og:description" content={description}>
+<meta property="og:image" content="https://fotobudka-ogeventspot.pl/images/heavysmoke.jpg">
+<link rel="icon" type="image/png" sizes="48x48" href="/images/og-events-logo-prof.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="stylesheet" href="/assets/fonts.css">
+<link rel="stylesheet" href="/assets/system.css">
+<link rel="stylesheet" href="/assets/ui/cards.css">
+<link rel="stylesheet" href="/assets/motion/motion.css">
+<link rel="stylesheet" href="/assets/layout/layout.css">
+<link rel="stylesheet" href="/assets/icons/icon.css">
+<style is:inline>
+:root {
+  --p-bg: #fbf4f1; --p-surface: #f6e3e8; --p-ink: #2d1b22; --p-muted: #76606a;
+  --p-accent: #801039; --p-accent-ink: #fbf4f1; --p-action: #801039; --p-action-ink: #fbf4f1;
+  --p-inv-bg: #2d1b22; --p-inv-surface: #3a282e; --p-inv-ink: #fbf4f1; --p-inv-muted: #a79a9b;
+  --p-inv-accent: #fbf4f1; --p-inv-accent-ink: #2d1b22; --p-inv-action: #fbf4f1; --p-inv-action-ink: #2d1b22;
+  --font-display: "Source Serif 4", Georgia, serif;
+  --font-text: "Libre Franklin", system-ui, sans-serif;
+  --display-weight: 400;
+  --display-tracking: -0.02em;
+  --display-tracking-xl: -0.026em;
+}
+</style>
+<link rel="stylesheet" href="/assets/site.css?v=13">
+<slot name="head" />
+</head>
+<body>
+<slot />
+<script type="module" is:inline src="/assets/system.js"></script>
+<script type="module" is:inline src="/assets/motion/motion.js"></script>
+<script type="module" is:inline src="/assets/layout/layout.js"></script>
+<script is:inline src="/assets/site.js?v=12" defer></script>
+</body>
+</html>
