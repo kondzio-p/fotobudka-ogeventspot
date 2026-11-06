@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../../styles/admin.css";
 import { useNavigate } from "react-router-dom";
 import {
 	PageData,
@@ -6,7 +8,6 @@ import {
 	updatePageData,
 	addNewSubPage,
 	removeSubPage,
-	clearPagesCache,
 } from "../../data/pageData";
 import { supabase } from "../../lib/supabase";
 
@@ -113,7 +114,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 			return result.path;
 		} catch (error) {
 			console.error("Error uploading file:", error);
-			alert("File upload error: " + (error as Error).message);
+			alert("Błąd wysyłania pliku: " + (error as Error).message);
 			throw error;
 		}
 	};
@@ -347,21 +348,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 			<div className="admin-sidebar">
 				<div className="admin-sidebar-header">
 					<div className="admin-logo">
-						<img
-							src="/assets/main/images/og-events-logo-black.webp"
-							alt="OG Events Logo"
-							width="100"
-							onError={(e) => {
-								const target = e.target as HTMLImageElement;
-								target.outerHTML =
-									'<div style="color: #8b4b7a; font-weight: bold; font-size: 20px;">OG<br><span style="font-size: 12px; font-weight: normal;">EVENT SPOT</span></div>';
-							}}
-						/>
+						<img src="/assets/main/images/og-events-logo-white.webp" alt="OG Events" width="110" />
 					</div>
 					<h5>Panel Administracyjny</h5>
 				</div>
 
 				<nav className="admin-nav">
+					<div className="admin-tabs">
 					<button
 						className={`admin-nav-item ${
 							activeTab === "pages" ? "active" : ""
@@ -376,21 +369,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 						}`}
 						onClick={() => setActiveTab("media")}
 					>
-						Media
+						Pliki
 					</button>
+					</div>
 
 					{activeTab === "pages" && (
 						<>
 							{pages.map((page) => (
-								<div
-									key={page.id}
-									style={{
-										display: "flex",
-										alignItems: "center",
-										gap: 8,
-										padding: "0 15px",
-									}}
-								>
+								<div key={page.id} className="admin-page-row">
 									<button
 										className={`admin-nav-item ${
 											currentPageId === page.id
@@ -400,14 +386,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 										onClick={() =>
 											handlePageSelect(page.id)
 										}
-										style={{ flex: 1 }}
 									>
-										{page.name}
+										<span>{page.name}</span>
+										<small>{page.slug}</small>
 									</button>
 									{page.slug !== "/" && (
 										<button
-											className="btn btn-danger btn-sm"
+											className="admin-page-remove"
 											title="Usuń podstronę"
+											aria-label={`Usuń podstronę ${page.name}`}
 											onClick={() => {
 												if (
 													confirm(
@@ -418,7 +405,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 												}
 											}}
 										>
-											🗑
+											×
 										</button>
 									)}
 								</div>
@@ -434,6 +421,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 				</nav>
 
 				<div className="admin-sidebar-footer">
+					<a className="admin-view-site" href="/" target="_blank" rel="noopener">
+						Otwórz stronę ↗
+					</a>
 					<button
 						className="btn btn-outline-secondary btn-sm"
 						onClick={handleLogout}
@@ -447,12 +437,18 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 				<div className="admin-content-header">
 					{activeTab === "pages" ? (
 						<div className="admin-edit-notice">
-							Aktualnie edytujesz:{" "}
+							<span>Edytujesz</span>
 							<strong>{currentPageData?.name}</strong>
+							{currentPageData && (
+								<a href={currentPageData.slug} target="_blank" rel="noopener">
+									Podgląd {currentPageData.slug} ↗
+								</a>
+							)}
 						</div>
 					) : (
 						<div className="admin-edit-notice">
-							<strong>Biblioteka mediów</strong>
+							<span>Pliki</span>
+							<strong>Biblioteka zdjęć i filmów</strong>
 						</div>
 					)}
 					<div className="admin-actions">
@@ -497,10 +493,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 									<input
 										type="text"
 										className="form-control"
-										value={currentPageData.seo?.title || ""}
+										value={currentPageData?.seo?.title || ""}
 										onChange={(e) =>
 											handleInputChange("seo" as any, {
-												...(currentPageData.seo || {
+												...(currentPageData?.seo || {
 													title: "",
 													description: "",
 												}),
@@ -521,12 +517,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 										className="form-control"
 										rows={3}
 										value={
-											currentPageData.seo?.description ||
+											currentPageData?.seo?.description ||
 											""
 										}
 										onChange={(e) =>
 											handleInputChange("seo" as any, {
-												...(currentPageData.seo || {
+												...(currentPageData?.seo || {
 													title: "",
 													description: "",
 												}),
@@ -542,7 +538,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 							<div className="admin-section">
 								<h4>Nawigacja</h4>
 								<div className="form-group">
-									<label>Facebook URL:</label>
+									<label>Facebook (adres)</label>
 									<input
 										type="url"
 										className="form-control"
@@ -560,7 +556,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 									/>
 								</div>
 								<div className="form-group">
-									<label>Instagram URL:</label>
+									<label>Instagram (adres)</label>
 									<input
 										type="url"
 										className="form-control"
@@ -580,7 +576,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 							</div>
 
 							<div className="admin-section">
-								<h4>Gallery Videos</h4>
+								<h4>Filmy w polaroidach</h4>
 								<div className="admin-video-frames">
 									{currentPageData!.videos.map(
 										(video, index) => (
@@ -589,7 +585,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 												className="admin-video-frame"
 											>
 												<div className="form-group">
-													<label>Video Path:</label>
+													<label>Ścieżka filmu</label>
 													<input
 														type="text"
 														className="form-control"
@@ -607,7 +603,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 												</div>
 												<div className="form-group">
 													<label>
-														Video Description:
+														Podpis pod filmem
 													</label>
 													<input
 														type="text"
@@ -626,7 +622,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 												</div>
 												<div className="form-group">
 													<label>
-														Start Time (seconds):
+														Start filmu (sekundy)
 													</label>
 													<input
 														type="number"
@@ -657,7 +653,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 														)
 													}
 												>
-													Remove
+													Usuń
 												</button>
 											</div>
 										)
@@ -672,15 +668,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 											})
 										}
 									>
-										+ Add Video
+										+ Dodaj film
 									</button>
 								</div>
 							</div>
 
 							<div className="admin-section">
-								<h4>Welcome Section</h4>
+								<h4>Sekcja oferty</h4>
 								<div className="form-group">
-									<label>Welcome Text:</label>
+									<label>Napis nad tytułem</label>
 									<input
 										type="text"
 										className="form-control"
@@ -698,7 +694,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 									/>
 								</div>
 								<div className="form-group">
-									<label>Subtitle:</label>
+									<label>Podtytuł</label>
 									<input
 										type="text"
 										className="form-control"
@@ -718,7 +714,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 							</div>
 
 							<div className="admin-section">
-								<h4>Statistics (Global - Read Only)</h4>
+								<h4>Liczby (wspólne dla wszystkich stron)</h4>
 								<div className="row">
 									<div className="col-md-4">
 										<input
@@ -754,7 +750,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 							</div>
 
 							<div className="admin-section">
-								<h4>Image Gallery (Carousel)</h4>
+								<h4>Galeria zdjęć</h4>
 								<div className="admin-gallery-images">
 									{currentPageData!.gallery.images.map(
 										(image, index) => (
@@ -763,7 +759,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 												className="admin-gallery-item"
 											>
 												<div className="form-group">
-													<label>Image Path:</label>
+													<label>Ścieżka zdjęcia</label>
 													<input
 														type="text"
 														className="form-control"
@@ -781,7 +777,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 												</div>
 												<div className="form-group">
 													<label>
-														Image Description (alt):
+														Podpis zdjęcia
 													</label>
 													<input
 														type="text"
@@ -807,7 +803,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 														)
 													}
 												>
-													Remove
+													Usuń
 												</button>
 											</div>
 										)
@@ -821,13 +817,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 											)
 										}
 									>
-										+ Add Image
+										+ Dodaj zdjęcie
 									</button>
 								</div>
 							</div>
 
 							<div className="admin-section">
-								<h4>Service Cities</h4>
+								<h4>Miasta (sekcja „Gdzie działamy”)</h4>
 								<div className="admin-cities">
 									{currentPageData!.locations.cities.map(
 										(city, index) => (
@@ -857,7 +853,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 														)
 													}
 												>
-													Remove
+													Usuń
 												</button>
 											</div>
 										)
@@ -871,13 +867,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 											)
 										}
 									>
-										+ Add City
+										+ Dodaj miasto
 									</button>
 								</div>
 							</div>
 
 							<div className="admin-section">
-								<h4>Footer</h4>
+								<h4>Stopka i kontakt</h4>
 								<div className="row">
 									<div className="col-md-6">
 										<div className="form-group">
@@ -957,7 +953,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 									</div>
 								</div>
 								<div className="form-group">
-									<label>Phone Number:</label>
+									<label>Numer telefonu</label>
 									<input
 										type="tel"
 										className="form-control"
@@ -978,9 +974,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 					) : (
 						<>
 							<div className="admin-section">
-								<h4>Add Media</h4>
+								<h4>Dodaj plik</h4>
 								<div className="form-group">
-									<label>Select Media Type:</label>
+									<label>Dla strony</label>
 									<select
 										id="mediaType"
 										className="form-control"
@@ -989,12 +985,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 											maxWidth: "200px",
 										}}
 									>
-										<option value="main">Main Page</option>
-										<option value="subpage">Subpage</option>
+										<option value="main">Strona główna</option>
+										<option value="subpage">Podstrony</option>
 									</select>
 								</div>
 								<div className="form-group">
-									<label>Select Category:</label>
+									<label>Rodzaj</label>
 									<select
 										id="mediaCategory"
 										className="form-control"
@@ -1003,14 +999,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 											maxWidth: "200px",
 										}}
 									>
-										<option value="images">Images</option>
-										<option value="videos">Videos</option>
+										<option value="images">Zdjęcia</option>
+										<option value="videos">Filmy</option>
 									</select>
 								</div>
 								<div className="form-group">
 									<label>
-										Select File (only .webp for images,
-										.webm for videos):
+										Wybierz plik (.webp dla zdjęć, .webm dla
+										filmów)
 									</label>
 									<input
 										type="file"
@@ -1113,13 +1109,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 										}}
 									/>
 									<small className="form-text text-muted">
-										Accepted formats: .webp (images), .webm
-										(videos)
+										Akceptowane formaty: .webp (zdjęcia), .webm
+										(filmy), do 50 MB
 									</small>
 								</div>
 
 								<div className="form-group">
-									<label>Or add path to existing file</label>
+									<label>Albo podaj ścieżkę do istniejącego pliku</label>
 									<div style={{ display: "flex", gap: 8 }}>
 										<input
 											id="manualMediaPath"
@@ -1171,21 +1167,21 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 												input.value = "";
 											}}
 										>
-											Add
+											Dodaj
 										</button>
 									</div>
 									<small className="form-text text-muted">
-										Example: /assets/main/images/photo.webp
+										Przykład: /assets/main/images/zdjecie.webp
 										or /assets/main/videos/video.webm
 									</small>
 								</div>
 							</div>
 
 							<div className="admin-section">
-								<h4>Your Media</h4>
+								<h4>Biblioteka plików</h4>
 								{media.length === 0 ? (
 									<div className="text-muted">
-										No media files. Add some above.
+										Brak plików. Dodaj pierwszy powyżej.
 									</div>
 								) : (
 									<div className="row">
@@ -1306,7 +1302,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 																		);
 																	}}
 																>
-																	Copy Path
+																	Kopiuj ścieżkę
 																</button>
 																<button
 																	className="btn btn-danger btn-sm"
@@ -1322,7 +1318,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 																		)
 																	}
 																>
-																	Remove
+																	Usuń
 																</button>
 															</div>
 														</div>
@@ -1334,7 +1330,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 								)}
 
 								<div className="admin-section">
-									<h4>SEO Management</h4>
+									<h4>SEO</h4>
 									<div className="form-group">
 										<button
 											className="btn btn-primary"
@@ -1363,49 +1359,25 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 												}
 											}}
 										>
-											Regenerate Sitemap
+											Odśwież sitemap.xml
 										</button>
 									</div>
 									<small className="form-text text-muted">
-										Regenerate sitemap.xml after
-										adding/removing subpages
+										Po dodaniu lub usunięciu podstrony odśwież
+										mapę strony dla Google
 									</small>
 								</div>
 
 								<small className="text-muted">
-									<strong>Automatic file upload:</strong>
+									<strong>Jak dodać plik:</strong>
 									<br />
-									1. Select media type (main/subpage) and
-									category (images/videos)
+									1. Wybierz, dla której strony jest plik i czy to zdjęcie, czy film.
 									<br />
-									2. Choose .webp (images) or .webm (videos)
-									file - max 50MB
+									2. Wybierz plik .webp (zdjęcie) albo .webm (film), maksymalnie 50 MB.
 									<br />
-									3. File will be automatically uploaded to
-									the correct server folder
+									3. Plik trafi automatycznie do właściwego folderu na serwerze.
 									<br />
-									4. Folder structure:
-									<br />
-									&nbsp;&nbsp;-{" "}
-									<code>/assets/main/images/</code> - main
-									page images
-									<br />
-									&nbsp;&nbsp;-{" "}
-									<code>/assets/main/videos/</code> - main
-									page videos
-									<br />
-									&nbsp;&nbsp;-{" "}
-									<code>/assets/subpages/images/</code> -
-									subpage images
-									<br />
-									&nbsp;&nbsp;-{" "}
-									<code>/assets/subpages/videos/</code> -
-									subpage videos
-									<br />
-									5. Copy path from library and use in gallery
-									<br />
-									<strong>Note:</strong> Only .webp and .webm
-									files accepted
+									4. Skopiuj ścieżkę z biblioteki i wklej ją w galerii albo w filmach.
 								</small>
 							</div>
 						</>
@@ -1423,7 +1395,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 						onClick={(e) => e.stopPropagation()}
 					>
 						<div className="admin-modal-header">
-							<h5>Add New Subpage</h5>
+							<h5>Nowa podstrona miasta</h5>
 							<button
 								className="btn-close"
 								onClick={() => setShowAddPageModal(false)}
@@ -1433,7 +1405,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 						</div>
 						<div className="admin-modal-body">
 							<div className="form-group">
-								<label>Page Name:</label>
+								<label>Nazwa (np. Gdańsk)</label>
 								<input
 									type="text"
 									className="form-control"
@@ -1445,7 +1417,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 								/>
 							</div>
 							<div className="form-group">
-								<label>URL Address (slug):</label>
+								<label>Adres (np. /gdansk)</label>
 								<input
 									type="text"
 									className="form-control"
@@ -1465,7 +1437,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 								className="btn btn-secondary"
 								onClick={() => setShowAddPageModal(false)}
 							>
-								Cancel
+								Anuluj
 							</button>
 							<button
 								className="btn btn-primary"

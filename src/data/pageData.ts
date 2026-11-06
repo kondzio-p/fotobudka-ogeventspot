@@ -1,4 +1,8 @@
-import { supabase } from "../lib/supabase";
+import { supabase, isDemoMode } from "../lib/supabase";
+import { demoPages } from "./demoPages";
+
+// w trybie demo zmiany z panelu żyją tylko do odświeżenia strony
+let demoStore: PageData[] = demoPages.map((p) => structuredClone(p));
 
 export interface PageData {
 	id: string;
@@ -89,6 +93,7 @@ const pageDataToDbRow = (data: PageData) => ({
 
 // Load all pages from database
 export const loadAllPages = async (): Promise<PageData[]> => {
+	if (isDemoMode) return demoStore;
 	try {
 		// Check cache first
 		const now = Date.now();
@@ -138,6 +143,10 @@ export const updatePageData = async (
 	id: string,
 	data: PageData
 ): Promise<boolean> => {
+	if (isDemoMode) {
+		demoStore = demoStore.map((p) => (p.id === id ? structuredClone(data) : p));
+		return true;
+	}
 	try {
 		const dbData = pageDataToDbRow(data);
 
@@ -167,6 +176,18 @@ export const addNewSubPage = async (
 	name: string,
 	slug: string
 ): Promise<PageData | null> => {
+	if (isDemoMode) {
+		const main = demoStore.find((p) => p.slug === "/");
+		if (!main) return null;
+		const page: PageData = {
+			...structuredClone(main),
+			id: "demo-" + Date.now(),
+			name,
+			slug: slug.startsWith("/") ? slug : `/${slug}`,
+		};
+		demoStore = [...demoStore, page];
+		return page;
+	}
 	try {
 		// Get main page data as template
 		const mainPage = await getPageData("/");
@@ -177,6 +198,7 @@ export const addNewSubPage = async (
 		const newPageData: Omit<PageData, "id"> = {
 			name,
 			slug: slug.startsWith("/") ? slug : `/${slug}`,
+			seo: { title: `Fotobudka ${name} | OG Events`, description: mainPage.seo.description },
 			navigation: { ...mainPage.navigation },
 			videos: [...mainPage.videos],
 			welcomeSection: { ...mainPage.welcomeSection },
@@ -223,6 +245,10 @@ export const addNewSubPage = async (
 
 // Remove subpage
 export const removeSubPage = async (id: string): Promise<boolean> => {
+	if (isDemoMode) {
+		demoStore = demoStore.filter((p) => p.id !== id || p.slug === "/");
+		return true;
+	}
 	try {
 		const { error } = await supabase
 			.from("pages")

@@ -3,11 +3,14 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-	throw new Error("Missing Supabase environment variables");
-}
+// Bez danych Supabase strona działa w trybie demo: treści z src/data/demoPages.ts,
+// panel bez logowania, zmiany trzymane tylko w pamięci przeglądarki.
+export const isDemoMode = !supabaseUrl || !supabaseAnonKey;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(
+	supabaseUrl || "http://localhost:54321",
+	supabaseAnonKey || "demo-anon-key"
+);
 
 export type Database = {
 	public: {

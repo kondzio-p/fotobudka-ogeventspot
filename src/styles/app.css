@@ -1,0 +1,26 @@
+/* elementy tylko dla wersji React */
+.page-loader {
+	min-height: 100svh;
+	display: grid;
+	place-content: center;
+	text-align: center;
+	gap: 6px;
+	color: var(--muted);
+}
+.page-loader .script {
+	font-size: 42px;
+}
+.demo-badge {
+	position: fixed;
+	right: 16px;
+	bottom: 16px;
+	pointer-events: none;
+	z-index: 60;
+	padding: 8px 14px;
+	border-radius: 999px;
+	background: var(--ink);
+	color: #fff;
+	font-size: 12px;
+	letter-spacing: 0.03em;
+	opacity: 0.85;
+}

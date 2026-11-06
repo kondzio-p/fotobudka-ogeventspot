@@ -1,168 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { useGSAP } from '../../hooks/useGSAP';
+import React from "react";
+import { Link } from "react-router-dom";
 
 interface HeaderProps {
-  data?: {
-    facebookUrl?: string;
-    instagramUrl?: string;
-  };
+	phone: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ data }) => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const location = useLocation();
-  const gsap = useGSAP();
+export const telHref = (phone: string) => "tel:+48" + phone.replace(/\D/g, "").replace(/^48(?=\d{9}$)/, "");
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
-    e.preventDefault();
-    
-    if (!gsap) {
-      // Fallback to native smooth scroll
-      const target = document.querySelector(targetId);
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth' });
-      }
-      return;
-    }
-
-    const target = document.querySelector(targetId);
-    if (target) {
-      gsap.to(window, {
-        duration: 1.2,
-        scrollTo: {
-          y: target,
-          offsetY: 80
-        },
-        ease: "power2.inOut"
-      });
-    }
-  };
-  const isActive = (path: string) => {
-    if (path === '/' && location.pathname === '/') return true;
-    if (path !== '/' && location.pathname.startsWith(path)) return true;
-    return false;
-  };
-
-  const facebookUrl = data?.facebookUrl || "https://www.facebook.com/profile.php?id=61553668165091";
-  const instagramUrl = data?.instagramUrl || "https://www.instagram.com/og.eventspot/";
-
-  return (
-    <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
-      <div className="nav-container">
-        {/* Desktop Layout */}
-        <div className="logo d-none d-md-block">
-          <img
-            src="/assets/main/images/og-events-logo-white.png"
-            alt="OG Events Logo"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.outerHTML = '<div style="color: #8b4b7a; font-weight: bold; font-size: 24px;">OG<br><span style="font-size: 12px; font-weight: normal;">EVENT SPOT</span></div>';
-            }}
-          />
-        </div>
-
-        <nav className="d-none d-md-block">
-          <ul className="nav-menu">
-            <li>
-              <Link to="/" className={isActive('/') ? 'active' : ''}>
-                Strona główna
-              </Link>
-            </li>
-            <li>
-              <a href="#welcome" onClick={(e) => handleSmoothScroll(e, '#welcome')}>O nas</a>
-            </li>
-            <li>
-              <a href="#contact" onClick={(e) => handleSmoothScroll(e, '#contact')}>Kontakt</a>
-            </li>
-          </ul>
-        </nav>
-
-        <div className="social-icons d-none d-md-flex">
-          <a
-            href={facebookUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="social-icon facebook"
-            aria-label="Facebook"
-          >
-            <img src="/assets/main/images/fb.svg" width="20px" alt="" />
-          </a>
-          <a
-            href={instagramUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="social-icon instagram"
-            aria-label="Instagram"
-          >
-            <img src="/assets/main/images/insta.svg" width="25px" alt="" />
-          </a>
-        </div>
-
-        {/* Mobile Layout */}
-        <div className="d-md-none w-100">
-          <div className="header-top-row">
-            <div className="logo">
-              <img
-                src="/assets/main/images/og-events-logo-white.png"
-                alt="OG Events Logo"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.outerHTML = '<div style="color: #8b4b7a; font-weight: bold; font-size: 18px;">OG<br><span style="font-size: 10px; font-weight: normal;">EVENT SPOT</span></div>';
-                }}
-              />
-            </div>
-
-            <div className="social-icons">
-              <a
-                href={facebookUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-icon facebook"
-                aria-label="Facebook"
-              >
-                <img src="/assets/main/images/fb.svg" width="16px" alt="" />
-              </a>
-              <a
-                href={instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-icon instagram"
-                aria-label="Instagram"
-              >
-                <img src="/assets/main/images/insta.svg" width="18px" alt="" />
-              </a>
-            </div>
-          </div>
-
-          <nav>
-            <ul className="nav-menu">
-              <li>
-                <Link to="/" className={isActive('/') ? 'active' : ''}>
-                  Główna
-                </Link>
-              </li>
-              <li>
-                <a href="#welcome" onClick={(e) => handleSmoothScroll(e, '#welcome')}>O nas</a>
-              </li>
-              <li>
-                <a href="#contact" onClick={(e) => handleSmoothScroll(e, '#contact')}>Kontakt</a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
-    </header>
-  );
-};
+const Header: React.FC<HeaderProps> = ({ phone }) => (
+	<header className="site-header">
+		<div className="nav-pill">
+			<Link className="nav-logo" to="/" aria-label="OG Events, strona główna">
+				<img src="/assets/main/images/og-events-logo-white.webp" width={397} height={227} alt="OG Events" />
+			</Link>
+			<nav className="nav-links" aria-label="Menu główne">
+				<a href="#oferta">Oferta</a>
+				<a href="#galeria">Galeria</a>
+				<a href="#faq">Pytania</a>
+				<a href="#kontakt">Kontakt</a>
+			</nav>
+			<a className="nav-cta" href={telHref(phone)}>
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+					<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+				</svg>
+				<span>{phone}</span>
+			</a>
+		</div>
+	</header>
+);
 
 export default Header;

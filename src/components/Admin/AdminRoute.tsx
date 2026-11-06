@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { supabase } from "../../lib/supabase";
+import { supabase, isDemoMode } from "../../lib/supabase";
 
 interface AdminRouteProps {
 	children: React.ReactNode;
@@ -15,6 +15,10 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
 		let unsub: () => void;
 
 		const init = async () => {
+			if (isDemoMode) {
+				setIsAuthenticated(true);
+				return;
+			}
 			// 1) sprawdź bieżącą sesję
 			const { data } = await supabase.auth.getSession();
 			setIsAuthenticated(!!data.session);

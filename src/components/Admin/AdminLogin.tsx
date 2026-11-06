@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../../lib/supabase";
+import { supabase, isDemoMode } from "../../lib/supabase";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../../styles/admin.css";
 
 interface AdminLoginProps {
 	onLogin: (isAuthenticated: boolean) => void;
@@ -17,7 +19,13 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
 		setIsLoading(true);
 		setError("");
 
-		const { data, error } = await supabase.auth.signInWithPassword({
+		if (isDemoMode) {
+			onLogin(true);
+			navigate("/admin/panel");
+			return;
+		}
+
+		const { error } = await supabase.auth.signInWithPassword({
 			email: credentials.login, // użyj pola "login" jako e-mail
 			password: credentials.password,
 		});
@@ -43,7 +51,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
 				<div className="admin-logo-section">
 					<div className="admin-logo">
 						<img
-							src="/assets/main/images/og-events-logo-black.webp"
+							src="/assets/main/images/og-events-logo-white.webp"
 							alt="OG Events Logo"
 							width="150"
 							onError={(e) => {
