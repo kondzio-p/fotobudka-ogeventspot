@@ -1,0 +1,304 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import Loader from '../components/Loader.astro';
+import Gallery from '../components/Gallery.astro';
+import MainScripts from '../components/MainScripts.astro';
+import { supabase } from '../lib/supabase';
+
+// 1. Pobieramy dane dla slugu 'home' (strona główna)
+const { data: pageData, error } = await supabase
+  .from('pages')
+  .select('*')
+  .eq('slug', 'home')
+  .single();
+
+// Fallback:
+const data = pageData || {};
+
+const title = data.meta_title || "Fotobudka Chojnice | OG Events";
+const description = data.meta_description || "Zajmiemy się atrakcjami na Twojej imprezie!";
+const heroTitle = data.hero_title || "Witamy w Fotobudka Chojnice!";
+const heroSubtitle = data.hero_subtitle || "Dopełniamy, by na Twoim wydarzeniu nie zabrakło Atrakcji!";
+const cityName = data.city_name || "Chojnice";
+const contactPhone = data.contact_phone || "576 934 594";
+const contactPhoneLink = contactPhone.replace(/\s/g, '');
+
+// Stylizacja ostatniego słowa w tytule
+const titleWords = heroTitle.split(' ');
+const lastWord = titleWords.pop();
+const styledHeroTitle = `${titleWords.join(' ')} <span style="color: #801039; font-weight: bold">${lastWord}</span>`;
+
+const galleryImages = data.gallery_images && data.gallery_images.length > 0 
+    ? data.gallery_images 
+    : [
+        { src: "/images/360.png", alt: "Fotobudka 360" },
+        { src: "/images/mirror.jpg", alt: "Fotolustro" },
+        { src: "/images/heavysmoke.jpg", alt: "Ciężki dym" }
+      ];
+---
+
+<Layout title={title} description={description}>
+    <Loader />
+    <div id="background-fixed"></div>
+
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo d-none d-md-block">
+                <a href="/">
+                    <img
+                        decoding="async"
+                        loading="lazy"
+                        src="/images/og-events-logo-white.png"
+                        alt="OG Events Logo"
+                        onerror="this.outerHTML='<div style=\'color: #8b4b7a; font-weight: bold; font-size: 24px;\'>OG<br><span style=\'font-size: 12px; font-weight: normal;\'>EVENT SPOT</span></div>'"
+                    />
+                </a>
+            </div>
+
+            <nav class="d-none d-md-block">
+                <ul class="nav-menu">
+                    <li><a href="#" class="active">Strona główna</a></li>
+                    <li><a href="#welcome">O nas</a></li>
+                    <li><a href="#contact">Kontakt</a></li>
+                </ul>
+            </nav>
+
+            <div class="social-icons d-none d-md-flex">
+                <a href="https://www.facebook.com/profile.php?id=61553668165091" target="_blank" class="social-icon facebook" aria-label="Facebook">
+                    <img decoding="async" loading="lazy" src="/images/fb.svg" width="20px" alt=""/>
+                </a>
+                <a href="https://www.instagram.com/og.eventspot/" target="_blank" class="social-icon instagram" aria-label="Instagram">
+                    <img decoding="async" loading="lazy" src="/images/insta.svg" width="25px" alt=""/>
+                </a>
+            </div>
+
+            <div class="d-md-none w-100">
+                <div class="header-top-row">
+                    <div class="logo">
+                        <img decoding="async" loading="lazy" src="/images/og-events-logo-white.png" alt="OG Events Logo"
+                        onerror="this.outerHTML='<div style=\'color: #8b4b7a; font-weight: bold; font-size: 18px;\'>OG<br><span style=\'font-size: 10px; font-weight: normal;\'>EVENT SPOT</span></div>'"/>
+                    </div>
+                    <div class="social-icons">
+                        <a href="https://www.facebook.com/profile.php?id=61553668165091" target="_blank" class="social-icon facebook" aria-label="Facebook">
+                            <img decoding="async" loading="lazy" src="/images/fb.svg" width="16px" alt=""/>
+                        </a>
+                        <a href="https://www.instagram.com/og.eventspot/" target="_blank" class="social-icon instagram" aria-label="Instagram">
+                            <img decoding="async" loading="lazy" src="/images/insta.svg" width="18px" alt=""/>
+                        </a>
+                    </div>
+                </div>
+                <nav>
+                    <ul class="nav-menu">
+                        <li><a href="#" class="active">Główna</a></li>
+                        <li><a href="#welcome">O nas</a></li>
+                        <li><a href="#contact">Kontakt</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="photo-gallery">
+            {data.hero_videos && data.hero_videos.length > 0 ? (
+                data.hero_videos.map((video) => (
+                    <div class="photo-frame">
+                        <div class="video-container">
+                            <video preload="auto" src={video.src} muted loop playsinline class="video-lazy"></video>
+                            <button class="play-pause-btn">▶</button>
+                        </div>
+                    </div>
+                ))
+            ) : (
+                <>
+                    <div class="photo-frame"><div class="video-container"><video preload="auto" src="/videos/filmik1s6.webm" muted loop playsinline poster="/videos/poster_filmik1.webp" class="video-lazy"></video><button class="play-pause-btn">▶</button></div></div>
+                    <div class="photo-frame"><div class="video-container"><video preload="auto" src="/videos/filmik2.webm" muted loop playsinline poster="/videos/poster_filmik2.webp" class="video-lazy"></video><button class="play-pause-btn">▶</button></div></div>
+                    <div class="photo-frame"><div class="video-container"><video preload="auto" src="/videos/filmik3.webm" muted loop playsinline poster="/videos/poster_filmik3.webp" class="video-lazy"></video><button class="play-pause-btn">▶</button></div></div>
+                    <div class="photo-frame"><div class="video-container"><video preload="auto" src="/videos/filmik4.webm" muted loop playsinline poster="/videos/poster_filmik4.webp" class="video-lazy"></video><button class="play-pause-btn">▶</button></div></div>
+                </>
+            )}
+        </div>
+    </main>
+
+    <section id="welcome" class="welcome-section">
+        <div class="container-fluid px-0">
+            <div class="welcome-header text-center py-5" style="background: rgba(255, 255, 255, 0.9)">
+                <h2 class="mb-3">
+                    <Fragment set:html={styledHeroTitle} />
+                </h2>
+                <p class="lead" style="color: #666">
+                    {heroSubtitle}
+                </p>
+            </div>
+
+            <div class="offers-section py-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                <div class="container">
+                    <h3 class="text-center mb-5" style="color: #2c2c2c">
+                        Nasza <span style="color: #801039">oferta</span> w mieście {cityName}
+                    </h3>
+
+                    <div class="row g-4">
+                        <div class="col-lg-4 col-md-6">
+                            <div class="offer-card offer-card-360 h-100">
+                                <div class="card-background"></div>
+                                <div class="card-overlay"></div>
+                                <div class="card-content">
+                                    <h4>Fotobudka 360</h4>
+                                    <p>{data.offer_360_desc || "Wejdź do centrum uwagi..."}</p>
+                                </div>
+                                <div class="card-title-overlay"><h4>Fotobudka 360</h4></div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6">
+                            <div class="offer-card offer-card-mirror h-100">
+                                <div class="card-background"></div>
+                                <div class="card-overlay"></div>
+                                <div class="card-content">
+                                    <h4>Fotolustro</h4>
+                                    <p>{data.offer_mirror_desc || "Magiczne lustro..."}</p>
+                                </div>
+                                <div class="card-title-overlay"><h4>Fotolustro</h4></div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6">
+                            <div class="offer-card offer-card-smoke h-100">
+                                <div class="card-background"></div>
+                                <div class="card-overlay"></div>
+                                <div class="card-content">
+                                    <h4>Ciężki dym</h4>
+                                    <p>{data.offer_smoke_desc || "Stwórz bajkową atmosferę..."}</p>
+                                </div>
+                                <div class="card-title-overlay"><h4>Ciężki dym</h4></div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6 offset-lg-2">
+                            <div class="offer-card offer-card-fountain h-100">
+                                <div class="card-background"></div>
+                                <div class="card-overlay"></div>
+                                <div class="card-content">
+                                    <h4>Fontanny iskier</h4>
+                                    <p>{data.offer_sparks_desc || "Wybuchaj radością..."}</p>
+                                </div>
+                                <div class="card-title-overlay"><h4>Fontanny iskier</h4></div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6">
+                            <div class="offer-card offer-card-neons h-100">
+                                <div class="card-background"></div>
+                                <div class="card-overlay"></div>
+                                <div class="card-content">
+                                    <h4>Neonowe napisy</h4>
+                                    <p>{data.offer_neons_desc || "Świeć jaśniej..."}</p>
+                                </div>
+                                <div class="card-title-overlay"><h4>Neonowe napisy</h4></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section py-5" style="background: rgba(255, 255, 255, 0.95)" id="stats">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h3 style="color: #2c2c2c"><span style="color: #801039">My</span> w liczbach</h3>
+            </div>
+            <div class="row justify-content-center g-4">
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="stat-card text-center p-4" style="background: #801039; color: white; border-radius: 15px; box-shadow: 0 8px 25px rgba(139, 75, 122, 0.3);">
+                        <div class="stat-number" style="font-size: 48px; font-weight: bold; margin-bottom: 10px;" data-final-value="200+">200+</div>
+                        <div class="stat-label" style="font-size: 16px; font-weight: 500">zadowolonych klientów</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                     <div class="stat-card text-center p-4" style="background: #801039; color: white; border-radius: 15px; box-shadow: 0 8px 25px rgba(139, 75, 122, 0.3);">
+                        <div class="stat-number" style="font-size: 48px; font-weight: bold; margin-bottom: 10px;" data-final-value="5 lat">5 lat</div>
+                        <div class="stat-label" style="font-size: 16px; font-weight: 500">na rynku</div>
+                    </div>
+                </div>
+                 <div class="col-lg-3 col-md-4 col-sm-6">
+                     <div class="stat-card text-center p-4" style="background: #801039; color: white; border-radius: 15px; box-shadow: 0 8px 25px rgba(139, 75, 122, 0.3);">
+                        <div class="stat-number" style="font-size: 48px; font-weight: bold; margin-bottom: 10px;" data-final-value="∞">∞</div>
+                        <div class="stat-label" style="font-size: 16px; font-weight: 500">uśmiechów</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq-section full-width" itemscope itemtype="https://schema.org/FAQPage">
+        <h2>Najczęściej zadawane pytania</h2>
+        <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+            <details>
+                <summary class="faq-question" itemprop="name">Ile kosztuje wynajem fotobudki 360° w {cityName}?</summary>
+                <div class="faq-answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <p itemprop="text">Cenę ustalamy indywidualnie. Skontaktuj się z nami!</p>
+                </div>
+            </details>
+        </div>
+        <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+            <details>
+                <summary class="faq-question" itemprop="name">Czy dojeżdżacie poza {cityName}?</summary>
+                <div class="faq-answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                    <p itemprop="text">Tak! Obsługujemy miasta i miejscowości w całym województwie i okolicach.</p>
+                </div>
+            </details>
+        </div>
+    </section>
+
+    <Gallery images={galleryImages} />
+
+    <footer class="contact-footer" style="background: #eec9d2; padding: 60px 0 40px 0; position: relative; margin-top: 0;" id="contact">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <h3 style="color: #801039; font-weight: bold; font-size: 42px; margin-bottom: 40px; line-height: 1.2;">
+                        Dotrzyj do nas za pomocą
+                    </h3>
+
+                    <div class="contact-info">
+                        <div class="contact-item" style="display: flex; align-items: center; margin-bottom: 25px; font-size: 24px; color: #2c2c2c;">
+                            <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin-right: 20px;">
+                                <img decoding="async" loading="lazy" src="/images/fb.svg" alt="Facebook" style="width: 32px; height: 32px" />
+                            </div>
+                            <a href="https://www.facebook.com/profile.php?id=61553668165091" target="_blank" style="font-weight: 500; color: #2c2c2c; text-decoration: none;">@OG Eventspot</a>
+                        </div>
+
+                        <div class="contact-item" style="display: flex; align-items: center; margin-bottom: 25px; font-size: 24px; color: #2c2c2c;">
+                            <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin-right: 20px;">
+                                <img decoding="async" loading="lazy" src="/images/insta.svg" alt="Instagram" style="width: 32px; height: 32px" />
+                            </div>
+                            <a href="https://www.instagram.com/og.eventspot/" target="_blank" style="font-weight: 500; color: #2c2c2c; text-decoration: none;">@og.eventspot</a>
+                        </div>
+
+                        <div class="contact-item" style="display: flex; align-items: center; margin-bottom: 25px; font-size: 24px; color: #2c2c2c;">
+                            <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin-right: 20px;">
+                                <img decoding="async" loading="lazy" src="/images/phone.svg" alt="Phone" style="width: 32px; height: 32px" />
+                            </div>
+                            <a href={`tel:${contactPhoneLink}`} style="font-weight: 500; color: #2c2c2c; text-decoration: none;">{contactPhone}</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 d-flex flex-column align-items-lg-end align-items-center justify-content-center">
+                    <div class="mb-3 text-center text-lg-end">
+                        <a href="https://kdzki.pl/" target="_blank" aria-label="Kdzki - Strony Internetowe">
+                            <img decoding="async" loading="lazy" src="/images/logoKdzki.webp" alt="Kdzki" style="height: 30px; width: auto; filter: grayscale(80%) opacity(0.8); transition: all 0.3s ease;" />
+                        </a>
+                    </div>
+                    <div style="text-align: right; color: #666; font-size: 14px; font-weight: 400;">
+                        © 2025 - Wszelkie prawa zastrzeżone
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <MainScripts />
+</Layout>

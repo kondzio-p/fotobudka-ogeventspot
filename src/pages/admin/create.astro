@@ -1,0 +1,181 @@
+---
+import '../../styles/bootstrap.min.css';
+---
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Dodaj nowe miasto</title>
+    <style>
+        body { background: #f4f6f9; padding: 2rem; }
+        .editor-container { max-width: 800px; margin: 0 auto; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .form-section { margin-bottom: 2rem; border-bottom: 1px solid #eee; padding-bottom: 1rem; }
+        h5 { color: #801039; margin-bottom: 1rem; font-weight: bold; }
+        label { font-weight: 500; font-size: 0.9rem; margin-bottom: 0.3rem; }
+    </style>
+</head>
+<body>
+
+    <div class="editor-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Dodaj nowe miasto</h2>
+            <a href="/admin" class="btn btn-outline-secondary btn-sm">← Wróć</a>
+        </div>
+
+        <form id="create-form">
+            <div class="form-section">
+                <h5>1. Ustawienia Główne</h5>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label>Nazwa Miasta</label>
+                        <input type="text" name="city_name" class="form-control" required placeholder="np. Sopot">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Slug URL</label>
+                        <input type="text" name="slug" class="form-control" required placeholder="np. sopot">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Numer Telefonu</label>
+                        <input type="text" name="contact_phone" class="form-control" placeholder="576 934 594" value="576 934 594">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h5>2. SEO</h5>
+                <div class="mb-3"><label>Meta Tytuł</label><input type="text" name="meta_title" class="form-control"></div>
+                <div class="mb-3"><label>Meta Opis</label><input type="text" name="meta_description" class="form-control"></div>
+            </div>
+
+            <div class="form-section">
+                <h5>3. Nagłówek i Filmy</h5>
+                <div class="mb-3"><label>Nagłówek (H2)</label><input type="text" name="hero_title" class="form-control"></div>
+                <div class="mb-3"><label>Podtytuł</label><input type="text" name="hero_subtitle" class="form-control"></div>
+                
+                <div class="mb-3">
+                    <label>Filmy w tle (Tylko .webm, Max 5MB)</label>
+                    <input type="file" id="video-upload" class="form-control" multiple accept="video/webm">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h5>4. Opisy Ofert</h5>
+                <div class="mb-3"><label>360</label><textarea name="offer_360_desc" class="form-control" rows="2"></textarea></div>
+                <div class="mb-3"><label>Lustro</label><textarea name="offer_mirror_desc" class="form-control" rows="2"></textarea></div>
+                <div class="mb-3"><label>Dym</label><textarea name="offer_smoke_desc" class="form-control" rows="2"></textarea></div>
+                <div class="mb-3"><label>Iskry</label><textarea name="offer_sparks_desc" class="form-control" rows="2"></textarea></div>
+                <div class="mb-3"><label>Neony</label><textarea name="offer_neons_desc" class="form-control" rows="2"></textarea></div>
+            </div>
+
+            <div class="form-section">
+                <h5>5. Galeria Zdjęć (Tylko .webp, Max 5MB)</h5>
+                <input type="file" id="gallery-upload" class="form-control" multiple accept="image/webp">
+            </div>
+
+            <button type="submit" id="submit-btn" class="btn btn-primary w-100 py-3 fw-bold" style="background-color: #801039;">
+                <span id="btn-text">ZAPISZ MIASTO</span>
+                <span id="btn-loader" class="spinner-border spinner-border-sm d-none" role="status"></span>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        import { supabase } from '../../lib/supabase';
+
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (!session) window.location.href = '/admin/login';
+        });
+
+        const form = document.getElementById('create-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnLoader = document.getElementById('btn-loader');
+
+        async function uploadFiles(fileInput, folder) {
+            const files = fileInput.files;
+            const uploadedUrls = [];
+
+            for (const file of files) {
+                // ZMIANA: Limit 5MB
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`Plik ${file.name} jest za duży! Max 5MB.`);
+                    throw new Error("File too large");
+                }
+                
+                // Walidacja typów w JS dla pewności
+                if (folder === 'videos' && !file.type.includes('webm')) {
+                    alert(`Plik ${file.name} musi być formatu WEBM!`);
+                    throw new Error("Invalid file type");
+                }
+                if (folder === 'gallery' && !file.type.includes('webp')) {
+                    alert(`Plik ${file.name} musi być formatu WEBP!`);
+                    throw new Error("Invalid file type");
+                }
+
+                const fileName = `${folder}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                
+                const { error } = await supabase.storage
+                    .from('assets')
+                    .upload(fileName, file);
+
+                if (error) {
+                    alert(`Błąd wysyłania ${file.name}: ` + error.message);
+                    throw error;
+                }
+
+                const { data: { publicUrl } } = supabase.storage
+                    .from('assets')
+                    .getPublicUrl(fileName);
+                
+                uploadedUrls.push(publicUrl);
+            }
+            return uploadedUrls;
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            submitBtn.disabled = true;
+            btnText.textContent = "WYSYŁANIE PLIKÓW...";
+            btnLoader.classList.remove('d-none');
+
+            try {
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                const videoInput = document.getElementById('video-upload');
+                let videoUrls = await uploadFiles(videoInput, 'videos');
+                const videosJson = videoUrls.map(url => ({ src: url }));
+
+                const galleryInput = document.getElementById('gallery-upload');
+                let galleryUrls = await uploadFiles(galleryInput, 'gallery');
+                const galleryJson = galleryUrls.map(url => ({ 
+                    src: url, 
+                    alt: 'Fotobudka ' + data.city_name 
+                }));
+
+                const insertData = {
+                    ...data,
+                    hero_videos: videosJson.length > 0 ? videosJson : [],
+                    gallery_images: galleryJson.length > 0 ? galleryJson : [],
+                    is_active: true
+                };
+
+                const { error } = await supabase.from('pages').insert(insertData);
+
+                if (error) throw error;
+
+                alert('Miasto dodane pomyślnie!');
+                window.location.href = '/admin';
+
+            } catch (err) {
+                alert('Wystąpił błąd: ' + err.message);
+                submitBtn.disabled = false;
+                btnText.textContent = "ZAPISZ MIASTO";
+                btnLoader.classList.add('d-none');
+            }
+        });
+    </script>
+</body>
+</html>

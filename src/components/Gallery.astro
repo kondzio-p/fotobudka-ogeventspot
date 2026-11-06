@@ -1,0 +1,176 @@
+---
+// Komponent Galerii - pobiera zdjęcia z propsów lub używa domyślnych
+// Dzięki temu będziesz mógł przekazać inne zdjęcia dla Gdańska, a inne dla Sopotu
+
+const { 
+  images = [
+    { src: "/images/360.png", alt: "Fotobudka 360" },
+    { src: "/images/mirror.jpg", alt: "Fotolustro" },
+    { src: "/images/heavysmoke.jpg", alt: "Ciężki dym" }
+  ] 
+} = Astro.props;
+---
+
+<section class="image-gallery-section py-5" style="background: rgba(139, 75, 122, 0.1)">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h3 style="color: #2c2c2c">
+                Nasza <span style="color: #801039">galeria</span>
+            </h3>
+        </div>
+
+        <div class="image-carousel-container">
+            <button class="carousel-arrow carousel-arrow-left" aria-label="Poprzedni slajd">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18L9 12L15 6" /></svg>
+            </button>
+
+            <div class="image-carousel">
+                <div class="image-slide image-slide-left">
+                    <img src={images[images.length - 1].src} alt={images[images.length - 1].alt} class="gallery-img" data-index={images.length - 1} />
+                </div>
+                <div class="image-slide image-slide-center active">
+                    <img src={images[0].src} alt={images[0].alt} class="gallery-img" data-index="0" />
+                </div>
+                <div class="image-slide image-slide-right">
+                    <img src={images[1] ? images[1].src : images[0].src} alt={images[1] ? images[1].alt : images[0].alt} class="gallery-img" data-index="1" />
+                </div>
+            </div>
+
+            <button class="carousel-arrow carousel-arrow-right" aria-label="Następny slajd">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18L15 12L9 6" /></svg>
+            </button>
+        </div>
+    </div>
+</section>
+
+<div id="lightboxOverlay" class="lightbox-overlay" aria-hidden="true">
+    <div class="lightbox-container">
+        <button class="lightbox-close" aria-label="Zamknij">✕</button>
+        <button class="lightbox-arrow lightbox-arrow-left">❮</button>
+        <button class="lightbox-arrow lightbox-arrow-right">❯</button>
+        <div class="lightbox-image-container">
+            <img id="lightboxImage" src="" alt="" />
+        </div>
+    </div>
+</div>
+
+<script is:inline define:vars={{ images }}>
+    // Przekazujemy tablicę images z serwera do klienta (JS)
+    const galleryData = images;
+    
+    document.addEventListener("DOMContentLoaded", () => {
+        if(typeof gsap === 'undefined') return; // Czekamy na GSAP
+
+        // --- ZMIENNE STANU ---
+        let currentIndex = 0;
+        let isAnimating = false;
+        
+        // --- ELEMENTY DOM ---
+        const leftSlideFn = () => document.querySelector(".image-slide-left img");
+        const centerSlideFn = () => document.querySelector(".image-slide-center img");
+        const rightSlideFn = () => document.querySelector(".image-slide-right img");
+        
+        // --- FUNKCJE KARUZELI ---
+        function updateCarousel() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const leftImg = leftSlideFn();
+            const centerImg = centerSlideFn();
+            const rightImg = rightSlideFn();
+
+            // Oblicz indeksy
+            const leftIndex = (currentIndex - 1 + galleryData.length) % galleryData.length;
+            const rightIndex = (currentIndex + 1) % galleryData.length;
+
+            const tl = gsap.timeline({
+                onComplete: () => { isAnimating = false; }
+            });
+
+            // Animacja wyjścia
+            tl.to([leftImg.parentNode, centerImg.parentNode, rightImg.parentNode], {
+                opacity: 0.5, scale: 0.8, duration: 0.3
+            })
+            .call(() => {
+                // Podmiana źródeł
+                leftImg.src = galleryData[leftIndex].src;
+                centerImg.src = galleryData[currentIndex].src;
+                rightImg.src = galleryData[rightIndex].src;
+                
+                // Aktualizacja data-index dla lightboxa
+                leftImg.dataset.index = leftIndex;
+                centerImg.dataset.index = currentIndex;
+                rightImg.dataset.index = rightIndex;
+            })
+            // Animacja wejścia
+            .to([leftImg.parentNode, rightImg.parentNode], {
+                opacity: 0.6, scale: 1, duration: 0.4
+            }, "+=0.1")
+            .to(centerImg.parentNode, {
+                opacity: 1, scale: 1, duration: 0.4
+            }, "-=0.3")
+            .fromTo(centerImg.parentNode, { scale: 0.95 }, { scale: 1.05, yoyo: true, repeat: 1, duration: 0.2 }, "-=0.2");
+        }
+
+        const nextImage = () => {
+            currentIndex = (currentIndex + 1) % galleryData.length;
+            updateCarousel();
+        };
+        const prevImage = () => {
+            currentIndex = (currentIndex - 1 + galleryData.length) % galleryData.length;
+            updateCarousel();
+        };
+
+        // Podpięcie przycisków
+        document.querySelector(".carousel-arrow-right")?.addEventListener("click", nextImage);
+        document.querySelector(".carousel-arrow-left")?.addEventListener("click", prevImage);
+
+        // --- LIGHTBOX LOGIC ---
+        const lightbox = document.getElementById("lightboxOverlay");
+        const lbImage = document.getElementById("lightboxImage");
+        let lbIndex = 0;
+
+        function openLightbox(index) {
+            lbIndex = index;
+            updateLightboxImage();
+            lightbox.classList.add("active");
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove("active");
+            document.body.style.overflow = "";
+        }
+
+        function updateLightboxImage() {
+            const item = galleryData[lbIndex];
+            lbImage.style.opacity = 0;
+            lbImage.src = item.src;
+            gsap.to(lbImage, { opacity: 1, duration: 0.3 });
+        }
+
+        // Kliknięcie w zdjęcie w galerii otwiera lightbox
+        document.querySelectorAll(".image-slide").forEach(slide => {
+            slide.addEventListener("click", (e) => {
+                const img = slide.querySelector("img");
+                if(img) openLightbox(parseInt(img.dataset.index));
+            });
+        });
+
+        // Przyciski Lightboxa
+        lightbox.querySelector(".lightbox-close")?.addEventListener("click", closeLightbox);
+        lightbox.querySelector(".lightbox-arrow-right")?.addEventListener("click", () => {
+            lbIndex = (lbIndex + 1) % galleryData.length;
+            updateLightboxImage();
+        });
+        lightbox.querySelector(".lightbox-arrow-left")?.addEventListener("click", () => {
+            lbIndex = (lbIndex - 1 + galleryData.length) % galleryData.length;
+            updateLightboxImage();
+        });
+        
+        // Zamknij na klik w tło
+        lightbox.addEventListener("click", (e) => {
+            if(e.target === lightbox) closeLightbox();
+        });
+    });
+</script>

@@ -1,0 +1,235 @@
+---
+export const prerender = false;
+import '../../../styles/bootstrap.min.css';
+const { slug } = Astro.params;
+---
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Edycja treści</title>
+    <style>
+        body { background: #f4f6f9; padding: 2rem; }
+        .editor-container { max-width: 800px; margin: 0 auto; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .form-section { margin-bottom: 2rem; border-bottom: 1px solid #eee; padding-bottom: 1rem; }
+        h5 { color: #801039; margin-bottom: 1rem; font-weight: bold; display: flex; align-items: center; justify-content: space-between; }
+        label { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem; color: #333; }
+        .helper-link { font-size: 0.85rem; text-decoration: none; color: #801039; border: 1px solid #801039; padding: 2px 8px; border-radius: 4px; transition: all 0.2s; }
+        .helper-link:hover { background: #801039; color: white; }
+        textarea.code-look { font-family: monospace; font-size: 0.85rem; color: #2c3e50; background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div id="slug-data" data-slug={slug} style="display:none;"></div>
+
+    <div class="editor-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Edycja: <span id="header-city-name" class="text-secondary">...</span></h2>
+            <div class="d-flex gap-2">
+                <a href="/admin/files" target="_blank" class="btn btn-outline-dark btn-sm">📁 Otwórz Magazyn Plików</a>
+                <a href="/admin" class="btn btn-outline-secondary btn-sm">← Wróć</a>
+            </div>
+        </div>
+
+        <form id="edit-form">
+            <input type="hidden" name="id" id="page-id">
+
+            <div class="form-section">
+                <h5>1. Ustawienia Podstawowe</h5>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label>Nazwa Miasta</label>
+                        <input type="text" name="city_name" class="form-control" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Slug URL</label>
+                        <input type="text" name="slug" id="slug-input" class="form-control" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Numer Telefonu</label>
+                        <input type="text" name="contact_phone" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h5>2. SEO (Google)</h5>
+                <div class="mb-3">
+                    <label>Meta Tytuł (tytuł karty w przeglądarce)</label>
+                    <input type="text" name="meta_title" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label>Meta Opis (tekst pod linkiem w Google)</label>
+                    <input type="text" name="meta_description" class="form-control">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h5>
+                    3. Sekcja Powitalna (Hero)
+                    <a href="/admin/files" target="_blank" class="helper-link">Pobierz linki do filmów ↗</a>
+                </h5>
+                <div class="mb-3">
+                    <label>Nagłówek Główny (H2)</label>
+                    <input type="text" name="hero_title" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label>Podtytuł</label>
+                    <input type="text" name="hero_subtitle" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label>Linki do filmów w tle (jeden pod drugim)</label>
+                    <textarea id="videos-input" class="form-control code-look" rows="5" placeholder="https://.../film1.webm&#10;https://.../film2.webm"></textarea>
+                    <div class="form-text">
+                        Wklej tutaj linki bezpośrednie do plików <strong>.webm</strong>.
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h5>4. Opisy Ofert</h5>
+                <div class="mb-3"><label>Opis Fotobudka 360</label><textarea name="offer_360_desc" class="form-control" rows="2"></textarea></div>
+                <div class="mb-3"><label>Opis Fotolustro</label><textarea name="offer_mirror_desc" class="form-control" rows="2"></textarea></div>
+                <div class="mb-3"><label>Opis Ciężki Dym</label><textarea name="offer_smoke_desc" class="form-control" rows="2"></textarea></div>
+                <div class="mb-3"><label>Opis Fontanny Iskier</label><textarea name="offer_sparks_desc" class="form-control" rows="2"></textarea></div>
+                <div class="mb-3"><label>Opis Neony</label><textarea name="offer_neons_desc" class="form-control" rows="2"></textarea></div>
+            </div>
+
+            <div class="form-section">
+                <h5>
+                    5. Galeria Zdjęć
+                    <a href="/admin/files" target="_blank" class="helper-link">Pobierz linki do zdjęć ↗</a>
+                </h5>
+                <div class="mb-3">
+                    <label>Linki do zdjęć (jeden pod drugim)</label>
+                    <textarea id="gallery-input" class="form-control code-look" rows="8" placeholder="https://.../foto1.webp&#10;https://.../foto2.webp"></textarea>
+                    <div class="form-text">
+                        Wklej tutaj linki bezpośrednie do plików <strong>.webp</strong>.
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" id="submit-btn" class="btn btn-primary w-100 py-3 fw-bold" style="background-color: #801039; border: none; font-size: 1.1rem;">
+                ZAPISZ ZMIANY
+            </button>
+        </form>
+    </div>
+
+    <script>
+        import { supabase } from '../../../lib/supabase';
+
+        const slug = document.getElementById('slug-data').dataset.slug;
+        const form = document.getElementById('edit-form');
+        const submitBtn = document.getElementById('submit-btn');
+
+        async function init() {
+            // Sprawdź sesję
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) { window.location.href = '/admin/login'; return; }
+
+            // Pobierz dane strony
+            const { data, error } = await supabase
+                .from('pages')
+                .select('*')
+                .eq('slug', slug)
+                .single();
+
+            if (error) { 
+                alert('Błąd pobierania danych: ' + error.message); 
+                return; 
+            }
+
+            // Wypełnij nagłówek
+            document.getElementById('header-city-name').textContent = data.city_name;
+            document.getElementById('page-id').value = data.id;
+            
+            // Wypełnij proste pola (inputy text i textarea opisów)
+            for (const [key, value] of Object.entries(data)) {
+                const el = document.getElementsByName(key)[0];
+                if (el && key !== 'hero_videos' && key !== 'gallery_images') {
+                    el.value = value || '';
+                }
+            }
+
+            // Przekonwertuj JSON filmów na tekst (linki w nowych liniach)
+            if (data.hero_videos && Array.isArray(data.hero_videos)) {
+                const lines = data.hero_videos.map(v => v.src).join('\n');
+                document.getElementById('videos-input').value = lines;
+            }
+
+            // Przekonwertuj JSON galerii na tekst
+            if (data.gallery_images && Array.isArray(data.gallery_images)) {
+                const lines = data.gallery_images.map(img => img.src).join('\n');
+                document.getElementById('gallery-input').value = lines;
+            }
+        }
+
+        init();
+
+        // Zapisywanie
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = "ZAPISYWANIE...";
+
+            try {
+                const formData = new FormData(form);
+                const updates = Object.fromEntries(formData.entries());
+                const id = updates.id;
+
+                // 1. Parsowanie Filmów (Tekst -> JSON)
+                const videosRaw = document.getElementById('videos-input').value;
+                // Dzielimy po enterze, usuwamy puste linie, tworzymy obiekty
+                const videosJson = videosRaw.split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line !== '')
+                    .map(src => ({ src: src }));
+
+                // 2. Parsowanie Galerii (Tekst -> JSON)
+                const galleryRaw = document.getElementById('gallery-input').value;
+                const galleryJson = galleryRaw.split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line !== '')
+                    .map(src => ({ 
+                        src: src, 
+                        alt: 'Fotobudka ' + updates.city_name // Generujemy ALT dynamicznie
+                    }));
+
+                // 3. Obiekt do wysyłki
+                const finalData = { 
+                    ...updates, 
+                    hero_videos: videosJson,
+                    gallery_images: galleryJson 
+                };
+
+                // 4. Update w bazie
+                const { error } = await supabase
+                    .from('pages')
+                    .update(finalData)
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                alert('Sukces! Zmiany zostały zapisane.');
+                
+                // Jeśli zmieniono slug, trzeba przeładować stronę na nowy adres,
+                // ale tutaj jesteśmy w edit/[slug], więc URL Astro jest dynamiczny.
+                // Jeśli zmienisz slug 'gdansk' na 'gdansk2', to obecny URL edit/gdansk przestanie działać po odświeżeniu.
+                // Przekierujmy użytkownika na listę lub nowy URL edycji.
+                if (updates.slug !== slug) {
+                    window.location.href = `/admin/edit/${updates.slug}`;
+                }
+
+            } catch (err) {
+                alert('Błąd zapisu: ' + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+    </script>
+</body>
+</html>
