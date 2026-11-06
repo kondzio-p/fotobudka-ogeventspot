@@ -1,43 +1,28 @@
-# Astro Starter Kit: Minimal
+# OG Events Spot
 
-```sh
-npm create astro@latest -- --template minimal
+Strona fotobudki OG Events z podstronami miast i panelem do edycji treści. Każde miasto ma swoją stronę pod lokalne SEO, a treści i zdjęcia zmienia się w panelu, bez kodu.
+
+Strona: https://fotobudka-ogeventspot.pl
+
+## Co jest w środku
+
+- strona główna i podstrony miast (`/gdansk`, `/sopot` i inne) renderowane na serwerze z danych w Supabase
+- puste pola miasta dziedziczą treść ze strony głównej
+- panel `/admin`: logowanie, edycja stron, dodawanie miast, upload zdjęć do galerii
+- wygląd wspólny z fotobudka-chojnice.pl (pliki w `public/assets`)
+
+## Technologie
+
+Astro 5 (SSR, adapter Node), Supabase, CSS bez frameworka. Fonty i skrypty hostowane lokalnie.
+
+## Uruchomienie
+
+```bash
+npm install
+cp .env.example .env   # adres i klucz anon z Supabase
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Wdrożenie
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Build na serwerze (`npm run build`), potem obraz Dockera z `dist`. Katalog `public/media` jest podpięty do kontenera jako wolumen, żeby zdjęcia wgrane w panelu nie znikały przy aktualizacji.
